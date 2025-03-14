@@ -8,9 +8,9 @@ import RecentList from "@/components/elements/marketInfo/RecentList";
 export default function Home() {
   return (
     <div className="self-stretch sm:px-[42px] px-5 inline-flex flex-col justify-start items-start gap-[50px] overflow-auto">
-      <div className="self-stretch relative">
+      {/* <div className="self-stretch relative">
         <MarketCarousel />
-      </div>
+      </div> */}
       <div className="self-stretch inline-flex flex-col 2xl:flex-row justify-start items-start gap-[50px] ">
         <Market />
         <div className="md:w-[519px] w-full  inline-flex flex-col justify-start items-start md:gap-6 gap-4">
