@@ -1,0 +1,33 @@
+import { IconName } from "@/components/elements/Icons/Icons";
+
+export const marketCarouselItems = [
+  {
+    category: "Cryptocurrency",
+    title: "Will Bitcoin hit 120k by the end of the month?",
+    bgImage: "/carousel_11.png",
+    mainImage: "/carousel_12.png",
+    overlayImage: "/carousel_13.png",
+  },
+  {
+    category: "Sports Betting",
+    title: "Which NFL team will win the Super Bowl in 2025?",
+    bgImage: "/carousel_21.png",
+    mainImage: "/carousel_22.png",
+    overlayImage: "/carousel_23.png",
+  },
+  {
+    category: "Sports Betting",
+    title: "Which NFL team will win the Super Bowl in 2025?",
+    bgImage: "/carousel_21.png",
+    mainImage: "/carousel_22.png",
+    overlayImage: "/carousel_23.png",
+  },
+];
+
+export const categories = [
+  { name: "Trending", active: true, icon: "Trending" as IconName, color: "#07b3ff" },
+  { name: "Sports", active: false, icon: "Sports" as IconName, color: "#838587" },
+  { name: "Crypto", active: false, icon: "Crypto" as IconName, color: "#838587" },
+  { name: "News", active: false, icon: "News" as IconName, color: "#838587" },
+];
+

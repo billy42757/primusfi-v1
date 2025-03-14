@@ -1,26 +1,25 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --font-display: "satoshi", "rubik","interSemi" "sans-serif";
+  --color-*: initial;
+  --color-white: #fff;
+  --color-purple: #3F3CBB;
+  --color-midnight: #121063;
+  --color-tahiti: #3AB7BF;
+  --color-bermuda: #78DCCA;
+  --color-blue: #07b3ff;
+  --color-gray: #838587;
+  --color-red: #FF6464;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #181a1b;
 }
