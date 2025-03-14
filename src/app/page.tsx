@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import MarketCarousel from "@/components/elements/carousel/MarketCarousel";
 import Market from "@/components/elements/marketInfo/Market";
 import RecentList from "@/components/elements/marketInfo/RecentList";
 
