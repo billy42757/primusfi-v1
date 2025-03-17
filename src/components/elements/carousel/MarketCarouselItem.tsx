@@ -1,6 +1,5 @@
 import { MarketCarouselItemProps } from "@/types/type";
 import Icon from "../Icons";
-import { useEffect, useState } from "react";
 
 const MarketCarouselItem: React.FC<MarketCarouselItemProps> = ({
   category,
