@@ -45,7 +45,7 @@ const SidebarNavItem: FC<SidebarNavItemProps> = ({
       )}
 
       <div
-        className={`justify-start md:hidden font-satoshi text-xl font-medium leading-7 transition-all duration-300 ease-in-out
+        className={`justify-start md:hidden font-satoshi text-xl font-medium leading-7 transition-all  duration-300 ease-in-out
           ${isActive ? "text-blue" : "text-gray"}`}
       >
         {label}

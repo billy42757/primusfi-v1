@@ -18,7 +18,7 @@ const VoteButton: React.FC<VoteButtonProps> = ({
 }) => {
   return (
     <button
-      className={`flex-1 px-4 py-2.5 bg-[${color}]/10 rounded-2xl  outline-1 outline-offset-[-1px] outline-[${color}] shadow-[inset_0px_2px_0px_0px_rgba(255,255,255,0.16)]
+      className={`flex-1 px-4 py-2.5 bg-[${color}]/10 rounded-2xl cursor-pointer hover:bg-[${color}]/20 outline-1 outline-offset-[-1px] outline-[${color}] shadow-[inset_0px_2px_0px_0px_rgba(255,255,255,0.16)]
                  flex justify-center items-center gap-2`}
       onClick={onClick}
     >

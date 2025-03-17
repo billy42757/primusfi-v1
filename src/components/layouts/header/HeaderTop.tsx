@@ -88,14 +88,14 @@ const HeaderTop = () => {
           )}
 
           {/* Search Bar */}
-          <div className="2xl:w-[480px] hidden px-4 py-3 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] lg:flex lg:w-auto justify-start items-center gap-3">
-            <span className="cursor-pointer">
+          <div className="2xl:w-[480px] hidden px-4 py-3 bg-[#1e1e1e]  rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] lg:flex lg:w-auto justify-start items-center gap-3">
+            <span className="pointer-events-none">
               <Icon name="Search" />
             </span>
             <input
               type="text"
               placeholder="Search"
-              className="flex-1 bg-transparent text-[#838587] text-base font-medium font-satoshi leading-normal outline-none"
+              className="flex-1 bg-transparent hover:text-gray-400 text-[#838587] text-base font-medium font-satoshi leading-normal outline-none"
             />
             <div className="px-2 py-1 bg-[#111111] rounded-lg outline-1 outline-offset-[-1px] outline-[#313131] flex justify-center items-center gap-2.5">
               <span className="text-[#838587] cursor-pointer text-sm font-medium font-satoshi leading-none">

@@ -29,7 +29,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
   onVote,
 }) => {
   return (
-    <div className="lg:p-6 p-4 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-start items-start lg:gap-6 gap-4">
+    <div className="lg:p-6 p-4 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] shadow-xl/20 outline-[#313131] inline-flex flex-col justify-start items-start lg:gap-6 gap-4">
       <div className="self-stretch flex flex-col justify-start items-start gap-2">
         <div className="self-stretch inline-flex justify-start items-center gap-2">
           <div className="flex-1 justify-start text-[#07b3ff] lg:text-base text-xs font-semibold font-Inter leading-normal">
