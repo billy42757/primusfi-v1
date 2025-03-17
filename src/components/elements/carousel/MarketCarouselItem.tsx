@@ -9,11 +9,6 @@ const MarketCarouselItem: React.FC<MarketCarouselItemProps> = ({
   mainImage,
   overlayImage,
 }) => {
-  const [isActive, setIsActive] = useState(false);
-
-  useEffect(() => {
-    setIsActive(true);
-  }, []);
 
   return (
     <div className="relative w-full max-w-[970px] h-[312px] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] outline-[#313131] overflow-hidden carousel-item">
