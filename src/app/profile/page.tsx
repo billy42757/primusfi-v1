@@ -8,6 +8,7 @@ import { FaTelegramPlane } from "react-icons/fa";
 import { LuPill } from "react-icons/lu";
 import { RiTwitterXFill } from "react-icons/ri";
 import { TbWorld } from "react-icons/tb";
+import Image from "next/image";
 
 const historyData = [
   {
@@ -163,10 +164,10 @@ export default function Home() {
   return (
     <div className="self-stretch h-[1184px] px-[50px] flex-col min-w-[1600px]:flex-row inline-flex justify-start items-start gap-[50px] overflow-auto">
       <div className="lg:w-[680px] flex-col lg:flex-row p-6 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-start items-start gap-4">
-        <img
+        <Image
           className="sm:w-[100px] sm:h-[100px] w-[50px] h-[50px] rounded-[10px] border border-white"
           src="https://placehold.co/100x100"
-          alt="Placeholder"
+          alt=""
         />
         <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
           <div className="self-stretch inline-flex justify-start items-start gap-4">
@@ -272,7 +273,7 @@ export default function Home() {
                 for, and engagement with, the ideals and beliefs embodied by the
                 symbol {`"$TRUMP"`} and the associated artwork, and are not intended
                 to be, or to be the subject of, an investment opportunity,
-                investment contract, or security of any type. 
+                investment contract, or security of any type.
               </span>
               <span className="text-[#07b3ff] text-base font-bold font-satoshi leading-tight">
                 Show more
@@ -402,8 +403,8 @@ export default function Home() {
               </div>
             </div>
             {proposals.map((proposal, index) => (
-        <ProfileProposeItem key={index} {...proposal} />
-      ))}
+              <ProfileProposeItem key={index} {...proposal} />
+            ))}
           </>
         )}
 

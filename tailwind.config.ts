@@ -16,6 +16,7 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: "#07B3FF",
       },
       fontFamily: {
         anton: ["anton"],

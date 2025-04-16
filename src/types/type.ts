@@ -1,3 +1,5 @@
+import { init } from "next/dist/compiled/webpack/webpack";
+
 export interface SidebarNavItemProps {
   label:
     | "Home"
@@ -44,4 +46,20 @@ export interface PendingData {
   timeLeft: string;
   comments: number;
   imageUrl: string;
+}
+
+export interface ProposeType {
+  question: string;
+  feedName: string;
+  dataLink: string;
+  task: string;
+  date: string;
+  ATokenName: string;
+  BTokenName: string;
+  ATokenSymbol: string;
+  BTokenSymbol: string;
+  ATokenURL: string;
+  BTokenURL: string;
+  TokenAmount: number;
+  TokenPrice: number
 }

@@ -7,10 +7,18 @@ import { usePathname } from "next/navigation";
 import { RxHamburgerMenu } from "react-icons/rx";
 import Link from "next/link";
 import HeaderSideBar from "./HeaderSideBar";
+import {
+  WalletMultiButton,
+  WalletDisconnectButton,
+  BaseWalletMultiButton
+} from "@solana/wallet-adapter-react-ui";
+import { useWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
+import { useConnection } from "@solana/wallet-adapter-react";
 
 const HeaderTop = () => {
   const { activeTab, setActiveTab } = useGlobalContext(); // Use Global Context
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const wallet = useWallet();
   const pathname = usePathname();
 
   return (
@@ -41,11 +49,10 @@ const HeaderTop = () => {
               <button
                 onClick={() => setActiveTab("ActiveMarket")}
                 className={`px-4 py-2.5 rounded-2xl flex items-center cursor-pointer gap-2 transition-all duration-300
-        ${
-          activeTab === "ActiveMarket"
-            ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
-            : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
-        }`}
+        ${activeTab === "ActiveMarket"
+                    ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
+                    : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
+                  }`}
               >
                 <Icon
                   name="ActiveMarket"
@@ -64,11 +71,10 @@ const HeaderTop = () => {
               <button
                 onClick={() => setActiveTab("PendingMarket")}
                 className={`px-4 py-2.5 rounded-2xl flex items-center cursor-pointer gap-2 transition-all duration-300
-        ${
-          activeTab === "PendingMarket"
-            ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
-            : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
-        }`}
+        ${activeTab === "PendingMarket"
+                    ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
+                    : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
+                  }`}
               >
                 <Icon
                   name="PendingMarket"
@@ -122,14 +128,23 @@ const HeaderTop = () => {
           </div>
 
           {/* Connect Wallet Button */}
-          <button
-            className="md:px-4 px-3 md:py-2.5 py-1 bg-[#07b3ff] rounded-2xl flex items-center gap-2 
-    transition-all cursor-pointer duration-300 ease-in-out hover:bg-[#0595d3] hover:scale-105 hover:shadow-lg"
+          {/* <button
+            onClick={
+              () => {
+                if (wallet.connected) {
+                  wallet.disconnect();
+                } else {
+                  wallet.connect();
+                }
+              }
+            }
+            className="md:px-4 px-3 md:py-2.5 py-1 bg-[#07b3ff] rounded-2xl flex items-center gap-2 transition-all cursor-pointer duration-300 ease-in-out hover:bg-[#0595d3] hover:scale-105 hover:shadow-lg"
           >
             <span className="text-black md:text-lg text-sm font-medium font-satoshi leading-7 transition-all duration-300 ease-in-out">
               Connect Wallet
             </span>
-          </button>
+          </button> */}
+          <WalletMultiButton style={{ borderRadius: "15px", backgroundColor: "#07B3FF", color: "#000", boxShadow: "inset 0px 2px 0px 0px rgba(255,255,255,0.16)" }} ></WalletMultiButton>
         </div>
       </div>
       <div className="px-[50px]">
@@ -150,7 +165,7 @@ const HeaderTop = () => {
           </div>
         </div>
       </div>
-      <div className={`absolute z-10 md:hidden ${isCollapsed ? "hidden":""}`}>
+      <div className={`absolute z-10 md:hidden ${isCollapsed ? "hidden" : ""}`}>
         <HeaderSideBar isCancel={isCollapsed} setIsCanceled={setIsCollapsed} />
       </div>
     </div>

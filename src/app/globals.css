@@ -8,7 +8,7 @@
 }
 
 @theme {
-  --font-display: "satoshi", "rubik","interSemi" "sans-serif";
+  --font-display: "satoshi", "rubik", "interSemi" "sans-serif";
   --color-*: initial;
   --color-white: #fff;
   --color-purple: #3F3CBB;
@@ -22,4 +22,16 @@
 
 body {
   background: #181a1b;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  /* inverts the color, making black -> white */
+  cursor: pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

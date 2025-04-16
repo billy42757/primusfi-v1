@@ -4,6 +4,7 @@ import SolCounter from "@/components/elements/fund/SolCounter";
 import Icon from "@/components/elements/Icons";
 import { CiStar } from "react-icons/ci";
 import { GoArrowDownRight, GoQuestion } from "react-icons/go";
+import Image from "next/image";
 import { ImAlarm } from "react-icons/im";
 
 export default function FundDetail() {
@@ -24,9 +25,10 @@ export default function FundDetail() {
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-6">
           <div className="self-stretch p-6 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-start items-start gap-10">
             <div className="self-stretch inline-flex justify-start items-start gap-8">
-              <img
+              <Image
                 className="2xl:w-[264px] 2xl:h-[264px] xl:w-[200px] xl:h-[200px] hidden rounded-2xl"
                 src="/fund.png"
+                alt=""
               />
               <div className="flex-1 inline-flex flex-col justify-start items-start gap-6 relative">
                 <div className="self-stretch inline-flex  justify-start items-start gap-2">
