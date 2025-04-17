@@ -26,3 +26,33 @@ export const uploadToPinata = async (file: File): Promise<string> => {
     throw new Error("Failed to upload image to Pinata");
   }
 };
+
+export function findJsonPathsForKey(jsonStr: string, key: string): string[] {
+    const paths: string[] = [];
+  
+    function search(obj: any, path: string = "$") {
+      if (typeof obj !== "object" || obj === null) return;
+  
+      if (Array.isArray(obj)) {
+        obj.forEach((item, index) => {
+          search(item, `${path}[${index}]`);
+        });
+      } else {
+        for (const k in obj) {
+          if (k === key) {
+            paths.push(`${path}.${k}`);
+          }
+          search(obj[k], `${path}.${k}`);
+        }
+      }
+    }
+  
+    try {
+      const data = JSON.parse(jsonStr);
+      search(data);
+      return paths;
+    } catch (e) {
+      console.error("Invalid JSON:", e);
+      return [];
+    }
+  }

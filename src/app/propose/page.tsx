@@ -4,25 +4,42 @@ import Icon from "@/components/elements/Icons";
 import { pendingPredictions } from "@/components/elements/marketInfo/Market";
 import PendingCard from "@/components/elements/marketInfo/PendingCard";
 import Pagination from "@/components/elements/pagination/Pagination";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiUpload } from "react-icons/fi";
-import { IoMdLink } from "react-icons/io";
 import { IoSearchOutline } from "react-icons/io5";
+import { ranges } from "@/data/data";
 import { ProposeType } from "@/types/type";
 import axios from "axios";
-import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
+import { marketField } from "@/data/data";
+import { findJsonPathsForKey } from "@/utils";
+import { Connection, VersionedTransaction } from "@solana/web3.js";
 
 export default function Propose() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const wallet = useAnchorWallet()
+  const { sendTransaction, publicKey } = useWallet()
   const [isChecked, setIsChecked] = useState(false);
+  const [marketFieldIndex, setMarketFieldIndex] = useState(0);
+  const [marketFieldContentIndex, setMarketFieldContentIndex] = useState(0);
+  const [marketFieldOpen, setMarketFieldOpen] = useState(false);
+  const [needDataError, setNeededDataError] = useState(false);
+  const [range, setRange] = useState(0);
+  const [rangeOpen, setRangeOpen] = useState(false);
+  const [marketFieldContentOpen, setMarketFieldContentOpen] = useState(false);
+  const connection = new Connection("https://api.devnet.solana.com");
+  // useEffect(() => {
+  //   document.getElementsByTagName("body")[0].addEventListener("click", (e) => {
+  //     setMarketFieldOpen(false);
+  //     setMarketFieldContentOpen(false);
+  //   })
+  // });
   const [error, setError] = useState({
     question: "",
     feedName: "",
     dataLink: "",
-    task: "",
     date: "",
     ATokenName: "",
     BTokenName: "",
@@ -32,15 +49,18 @@ export default function Propose() {
     BTokenURL: "",
     TokenAmount: "",
     TokenPrice: "",
+    value: "",
     checkbox: ""
-  })
+  });
   const [data, setData] = useState<ProposeType>({
     // Provide default values based on the ProposeType structure
+    marketField: marketFieldIndex,
+    apiType: marketFieldContentIndex,
     question: "",
     feedName: "",
     dataLink: "",
-    task: "",
     date: "",
+    task: "",
     ATokenName: "",
     BTokenName: "",
     ATokenSymbol: "",
@@ -48,7 +68,10 @@ export default function Propose() {
     ATokenURL: "",
     BTokenURL: "",
     TokenAmount: 0,
-    TokenPrice: 0
+    TokenPrice: 0,
+    value: 0,
+    range: 0,
+    creator: "",
   });
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +97,6 @@ export default function Propose() {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const { name, value } = e.target as HTMLInputElement;
-    console.log("changes", value);
 
     setData((prevData) => ({
       ...prevData,
@@ -89,9 +111,46 @@ export default function Propose() {
 
   const onSubmit = async () => {
     try {
-      const creator = wallet?.publicKey?.toBase58() || "";
-      const res = await axios.post("http://localhost:8080/api/oracle/registFeed", { data, isChecked, });
+      const market_detail = marketField[marketFieldIndex].content[marketFieldContentIndex]
+      const need_key = market_detail.needed_data;
+      const params = [];
+      if (!publicKey) {
+        return
+      }
+
+      for (let index = 0; index < need_key.length; index++) {
+        const element = need_key[index];
+        const elem_val = document.getElementById(element.name) as HTMLInputElement;
+
+        if (elem_val.value === "") {
+          setNeededDataError(true);
+          return
+        }
+        params.push(elem_val.value)
+      }
+
+      const api_link = market_detail.api_link(...params);
+      const response = await axios.get(api_link);
+      const task = market_detail.task ? market_detail.task : findJsonPathsForKey(JSON.stringify(response.data), params[0])[0];
+
+      data.dataLink = api_link;
+      data.task = task;
+      data.creator = publicKey.toBase58() || "";
+      data.range = range;
+      data.marketField = marketFieldIndex;
+      data.apiType = marketFieldContentIndex;
+
+      console.log("data", data);
+      const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
       console.log("response", res.data);
+
+      const vtx = VersionedTransaction.deserialize(Buffer.from(res.data.result, 'base64'));
+      // const signedVtx = await wallet?.signTransaction(vtx);
+      // const tx = await connection.sendTransaction(signedVtx)
+      const tx = await sendTransaction(vtx, connection);
+
+      console.log(tx);
+
       if (res.status === 200) {
         alert("success");
       }
@@ -111,7 +170,6 @@ export default function Propose() {
             question: error.response?.data.question || "",
             feedName: error.response?.data.feedName || "",
             dataLink: error.response?.data.dataLink || "",
-            task: error.response?.data.task || "",
             date: error.response?.data.date || "",
             ATokenName: error.response?.data.ATokenName || "",
             BTokenName: error.response?.data.BTokenName || "",
@@ -121,7 +179,8 @@ export default function Propose() {
             BTokenURL: error.response?.data.BTokenURL || "",
             TokenAmount: error.response?.data.TokenAmount || "",
             TokenPrice: error.response?.data.TokenPrice || "",
-            checkbox: isChecked ? "" : "Please accept the terms and conditions"
+            checkbox: isChecked ? "" : "Please accept the terms and conditions",
+            value: error.response?.data.value || "",
           });
         } else if (error.response?.status === 500) {
           console.log("Axios Error:", error.response?.data);
@@ -174,6 +233,67 @@ export default function Propose() {
             </div>
           </div>
           <div className="flex-1 inline-flex flex-col justify-start items-start gap-5">
+            <div className="self-stretch flex flex-col justify-start items-start relative gap-2 mb-8">
+              <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
+                Market Field
+              </div>
+              <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setMarketFieldOpen(!marketFieldOpen)}>
+                {marketField[marketFieldIndex].name}
+                <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+              </button>
+
+              {marketFieldOpen ? <div id="dropdown" className="z-10  w-full self-stretch hover:cursor-pointer text-[#838587] px-3 py-2 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center absolute top-[100%] left-0">
+                <ul className="py-2 w-full">
+                  {
+                    marketField.map((field, index) =>
+                      <li className="w-full hover:bg-[#313131] rounded-md" onClick={() => { setMarketFieldIndex(index); setMarketFieldOpen(false); setMarketFieldContentIndex(0); }} key={index + field.name} >
+                        <span className="block px-4 py-2 ">{field.name}</span>
+                      </li>
+                    )
+                  }
+                </ul>
+              </div> : ""}
+            </div>
+
+            <div className="self-stretch flex flex-col justify-start items-start relative gap-2 mb-8">
+              <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
+                API Selection
+              </div>
+              <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setMarketFieldContentOpen(!marketFieldContentOpen)}>
+                {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name}
+                <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+              </button>
+
+              {marketFieldContentOpen ? <div id="dropdown" className="z-10  w-full self-stretch hover:cursor-pointer text-[#838587] px-3 py-2 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center absolute top-[100%] left-0">
+                <ul className="py-2 w-full">
+                  {
+                    marketField[marketFieldIndex].content.map((field, index) =>
+                      <li className="w-full hover:bg-[#313131] rounded-md" onClick={() => { setMarketFieldContentIndex(index); setMarketFieldContentOpen(false); }} key={index + field.api_name} >
+                        <span className="block px-4 py-2 ">{field.api_name}</span>
+                      </li>
+                    )
+                  }
+                </ul>
+              </div> : ""}
+            </div>
+
+            {
+              marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data.map((field, index) =>
+                <div className="self-stretch flex flex-col justify-start items-start gap-2" key={index + field.name}>
+                  <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
+                    {field.name}
+                  </div>
+                  <div className="self-stretch bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center">
+                    <input type="text" id={field.name} className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" placeholder={field.placeholder} name={field.name} onChange={() => setNeededDataError(false)} />
+                  </div>
+                  <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please fill out this field</div>
+                </div>
+              )
+            }
 
             <div className="self-stretch flex flex-col justify-start items-start gap-2">
               <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
@@ -185,6 +305,7 @@ export default function Propose() {
               {/* <div className={`text-red ${error.question ? "" : "invisible"}`}>{error.question}</div> */}
               <div className={`text-red ${error.question !== "" ? "" : "invisible"}`}>*Invalid question</div>
             </div>
+
             <div className="self-stretch flex flex-col justify-start items-start gap-2">
               <div className="self-stretch flex flex-col justify-start items-start gap-2">
                 <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
@@ -206,26 +327,36 @@ export default function Propose() {
 
             <div className="self-stretch flex flex-col justify-start items-start gap-2">
               <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
-                Resolution link
+                Prediction Value
               </div>
               <div className="self-stretch bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center">
-                <input className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" placeholder="https://puppyonmarket.com" name="dataLink" onChange={onInputChange} />
-                <div className="w-4 h-4 relative overflow-hidden mr-4 hover:cursor-pointer">
-                  <IoMdLink size={16} className="text-white" />
-                </div>
+                <input type="number" className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" name="value" onChange={onInputChange} min={0} />
               </div>
-              <div className={`text-red ${error.dataLink !== "" ? "" : "invisible"}`}>*Invalid Link</div>
+              <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
             </div>
 
-            <div className="self-stretch flex flex-col justify-start items-start gap-2">
+            <div className="self-stretch flex flex-col justify-start items-start relative gap-2 mb-8">
               <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
-                Task
+                Select Prediction Range
               </div>
-              <div className="self-stretch bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center">
-                <input className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" placeholder="$[?(@.symbol == 'BTCUSDT')].price" name="task" onChange={onInputChange} />
-              </div>
-              <div className={`text-red ${error.task !== "" ? "" : "invisible"}`}>*Invalid Task</div>
+              <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setRangeOpen(!rangeOpen)}>
+                {ranges[range]}
+                <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+              </button>
 
+              {rangeOpen ? <div id="dropdown" className="z-10  w-full self-stretch hover:cursor-pointer text-[#838587] px-3 py-2 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center absolute top-[100%] left-0">
+                <ul className="py-2 w-full">
+                  {
+                    ranges.map((range, index) =>
+                      <li className="w-full hover:bg-[#313131] rounded-md" onClick={() => { setRange(index); setRangeOpen(false); }} key={index + range} >
+                        <span className="block px-4 py-2 ">{range}</span>
+                      </li>
+                    )
+                  }
+                </ul>
+              </div> : ""}
             </div>
 
             <div className="self-stretch flex flex-col justify-start items-start gap-2">

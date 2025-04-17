@@ -49,11 +49,13 @@ export interface PendingData {
 }
 
 export interface ProposeType {
+  marketField: number;
+  apiType: number;
   question: string;
   feedName: string;
   dataLink: string;
-  task: string;
   date: string;
+  task: string;
   ATokenName: string;
   BTokenName: string;
   ATokenSymbol: string;
@@ -61,5 +63,8 @@ export interface ProposeType {
   ATokenURL: string;
   BTokenURL: string;
   TokenAmount: number;
-  TokenPrice: number
+  TokenPrice: number,
+  value: number,
+  range: number,
+  creator: string
 }

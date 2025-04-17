@@ -45,7 +45,7 @@ const MarketCarouselItem: React.FC<MarketCarouselItemProps> = ({
         <div
           className="group px-4 py-2.5 bg-[#07b3ff] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(255,255,255,0.16)] 
           inline-flex justify-start items-center gap-4 carousel-button
-          transition-all duration-300 ease-in-out hover:bg-[#0595d3] hover:scale-105 hover:shadow-lg cursor-pointer
+          transition-all duration-300 ease-in-out hover:bg-[#0595d3] hover:scale-105 cursor-pointer
           hover:shadow-[0_0_20px_rgba(7,179,255,0.4)]"
         >
           <div className="text-[#111111] text-base md:text-lg font-bold font-stoshi leading-7 transition-all duration-300 ease-in-out group-hover:translate-x-1">
