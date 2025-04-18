@@ -8,15 +8,15 @@ import VoteButton from "../buttons/VoteBtn";
 
 // Define types for the props
 interface PredictionCardProps {
-    category: string;
-    question: string;
-    volume: string;
-    timeLeft: string;
-    comments: number;
-    yesPercentage: number;
-    imageUrl: string;
-    onVote: () => void;
-  }
+  category: string;
+  question: string;
+  volume: number;
+  timeLeft: string;
+  comments: number;
+  yesPercentage: number;
+  imageUrl: string;
+  onVote: () => void;
+}
 
 const PredictionCard: React.FC<PredictionCardProps> = ({
   category,

@@ -1,13 +1,14 @@
 import axios from "axios";
 
-const PINATA_API_KEY = process.env.NEXT_PUBLIC_PINATA_API_KEY;
-const PINATA_SECRET_KEY = process.env.NEXT_PUBLIC_PINATA_SECRET_KEY;
+const PINATA_API_KEY = "6ab09644822193eed05d";
+const PINATA_SECRET_KEY = "e920681dec7cb1d967ab69aaff433c1a94d4e4b3da53dc0d169f6736c7292708";
 
-export const uploadToPinata = async (file: File): Promise<string> => {
+export const uploadToPinata = async (file: File) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-
+    console.log("uploading...");
+    
     const response = await axios.post(
       "https://api.pinata.cloud/pinning/pinFileToIPFS",
       formData,
@@ -19,11 +20,12 @@ export const uploadToPinata = async (file: File): Promise<string> => {
         },
       }
     );
+    console.log("finished uploading", response.data.IpfsHash);
 
     return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (error) {
     console.error("Error uploading to Pinata:", error);
-    throw new Error("Failed to upload image to Pinata");
+    return null
   }
 };
 
@@ -55,4 +57,26 @@ export function findJsonPathsForKey(jsonStr: string, key: string): string[] {
       console.error("Invalid JSON:", e);
       return [];
     }
-  }
+}
+
+
+export const getCountDown = (targetDateStr: string) => {
+
+  const targetDate = new Date(targetDateStr);
+  const now = new Date();
+
+  let diff = Math.max(0, targetDate.getTime() - now.getTime()); // in milliseconds
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -= days * (1000 * 60 * 60 * 24);
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * (1000 * 60 * 60);
+
+  const minutes = Math.floor(diff / (1000 * 60));
+  diff -= minutes * (1000 * 60);
+
+  const seconds = Math.floor(diff / 1000);
+
+  return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+}

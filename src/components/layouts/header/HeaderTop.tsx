@@ -47,21 +47,21 @@ const HeaderTop = () => {
             <div className="p-0.5 bg-[#111111] rounded-[18px] outline-1 outline-offset-[-1px] outline-[#313131] flex">
               {/* Active Market Button */}
               <button
-                onClick={() => setActiveTab("ActiveMarket")}
+                onClick={() => setActiveTab("ACTIVE")}
                 className={`px-4 py-2.5 rounded-2xl flex items-center cursor-pointer gap-2 transition-all duration-300
-        ${activeTab === "ActiveMarket"
+        ${activeTab === "ACTIVE"
                     ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
                     : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
                   }`}
               >
                 <Icon
                   name="ActiveMarket"
-                  color={activeTab === "ActiveMarket" ? "#FF6464" : "#838587"}
+                  color={activeTab === "ACTIVE" ? "#FF6464" : "#838587"}
                   className="transition-all duration-300 ease-in-out hover:scale-110"
                 />
                 <span
                   className={`text-base font-medium font-satoshi leading-normal transition-all duration-300 ease-in-out
-          ${activeTab === "ActiveMarket" ? "text-white" : "text-[#838587]"}`}
+          ${activeTab === "ACTIVE" ? "text-white" : "text-[#838587]"}`}
                 >
                   Active Market
                 </span>
@@ -69,21 +69,21 @@ const HeaderTop = () => {
 
               {/* Pending Market Button */}
               <button
-                onClick={() => setActiveTab("PendingMarket")}
+                onClick={() => setActiveTab("PENDING")}
                 className={`px-4 py-2.5 rounded-2xl flex items-center cursor-pointer gap-2 transition-all duration-300
-        ${activeTab === "PendingMarket"
+        ${activeTab === "PENDING"
                     ? "bg-[#282828] shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)]"
                     : "bg-transparent hover:bg-[#2a2a2a] hover:shadow-md hover:scale-95"
                   }`}
               >
                 <Icon
                   name="PendingMarket"
-                  color={activeTab === "PendingMarket" ? "#FF6464" : "#838587"}
+                  color={activeTab === "PENDING" ? "#FF6464" : "#838587"}
                   className="transition-all duration-300 ease-in-out hover:scale-110"
                 />
                 <span
                   className={`text-base font-medium font-satoshi leading-normal transition-all duration-300 ease-in-out
-          ${activeTab === "PendingMarket" ? "text-white" : "text-[#838587]"}`}
+          ${activeTab === "PENDING" ? "text-white" : "text-[#838587]"}`}
                 >
                   Pending Market
                 </span>

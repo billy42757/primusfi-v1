@@ -3,6 +3,7 @@
 import FundCard from "@/components/elements/fund/FundCard";
 import Market from "@/components/elements/marketInfo/Market";
 import { useGlobalContext } from "@/providers/GlobalContext";
+import axios from "axios";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,7 +13,7 @@ export default function FundMarket() {
 
   useEffect(() => {
     if (pathname === "/fund") {
-      setActiveTab("PendingMarket"); // Update tab
+      setActiveTab("PENDING"); // Update tab
     }
   }, [pathname, setActiveTab]); // Dependency array ensures it runs on pathname change
 

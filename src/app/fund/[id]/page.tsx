@@ -4,28 +4,80 @@ import SolCounter from "@/components/elements/fund/SolCounter";
 import Icon from "@/components/elements/Icons";
 import { CiStar } from "react-icons/ci";
 import { GoArrowDownRight, GoQuestion } from "react-icons/go";
-import Image from "next/image";
 import { ImAlarm } from "react-icons/im";
+import { useParams } from "next/navigation";
+import { useGlobalContext } from "@/providers/GlobalContext";
+import { marketField } from "@/data/data";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { getCountDown } from "@/utils";
+import { depositLiquidity } from "@/components/prediction_market_sdk";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { errorAlert, infoAlert } from "@/components/elements/ToastGroup";
+import axios from "axios";
 
 export default function FundDetail() {
+  const { markets } = useGlobalContext(); // Ensure setActiveTab exists in context
+  const [counter, setCounter] = useState("7d : 6h : 21m : 46s");
+  const [fundAmount, setAmount] = useState(0);
+  const router = useRouter();
+  const wallet = useWallet();
+
+  if (markets.length === 0) {
+    router.replace("/fund"); // Navigate to dynamic page
+    return
+  }
+
+  const param = useParams();
+  const index = Number(param.id);
+  const market = markets[index];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let remainTime = getCountDown(market.date);
+      setCounter(remainTime);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const onFund = async () => {
+    try {
+      const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
+      console.log("result market status:", status);
+
+      const active = status === "active" ? true : false;
+      console.log("status:", active);
+
+      const result = await axios.post("http://localhost:8080/api/market/liquidity", { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
+      if (result.status === 200) {
+        infoAlert("Market created successfully!");
+        router.replace(`/fund`);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      errorAlert("Failed deploying fund!")
+    }
+  }
   return (
     <div className="self-stretch px-[50px] inline-flex flex-col justify-start items-start gap-[50px] overflow-auto">
       <div className="self-stretch inline-flex justify-start items-start gap-2 ">
         <div className="justify-start text-[#838587] text-lg font-normal cursor-pointer font-rubic leading-relaxed">
-          Fund Market
+          {marketField[market.marketField].name}
         </div>
         <div className="justify-start text-[#838587] text-lg font-normal font-rubic leading-relaxed">
           {">"}
         </div>
         <div className="justify-start text-white text-lg font-normal font-rubic leading-relaxed">
-          Will Bitcoin hit 100K by April?
+          {market.question}
         </div>
       </div>
       <div className="self-stretch inline-flex flex-col lg:flex-row justify-start items-start gap-[50px]">
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-6">
           <div className="self-stretch p-6 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-start items-start gap-10">
             <div className="self-stretch inline-flex justify-start items-start gap-8">
-              <Image
+              <img
                 className="2xl:w-[264px] 2xl:h-[264px] xl:w-[200px] xl:h-[200px] hidden rounded-2xl"
                 src="/fund.png"
                 alt=""
@@ -35,11 +87,11 @@ export default function FundDetail() {
                   <div className="flex-1 inline-flex flex-col justify-start items-start gap-2">
                     <div className="inline-flex justify-start items-center gap-2">
                       <div className="justify-start text-[#07b3ff] text-base font-semibold font-interSemi leading-normal">
-                        Cryptocurency
+                        {marketField[market.marketField].name}
                       </div>
                     </div>
                     <div className="self-stretch justify-start text-white text-[40px] font-medium font-rubik leading-[48px]">
-                      Will Bitcoin hit 100K by April?
+                      {market.question}
                     </div>
                   </div>
                   <div className="flex absolute top-0 right-0 gap-1">
@@ -75,7 +127,7 @@ export default function FundDetail() {
                       />
                     </div>
                     <div className="justify-start text-[#3fd145] text-lg font-medium font-satoshi leading-relaxed">
-                      7d : 6h : 21m : 46s
+                      {counter}
                     </div>
                   </div>
                 </div>
@@ -112,7 +164,7 @@ export default function FundDetail() {
                     <div className="self-stretch rounded-xl inline-flex justify-between items-center">
                       <div className="justify-start">
                         <span className="text-[#3fd145] text-lg font-semibold font-interSemi leading-relaxed">
-                          8.9{" "}
+                          {market.totalInvestment.toFixed(4)}
                         </span>
                         <span className="text-[#838587] text-lg font-semibold font-interSemi leading-relaxed">
                           / 30
@@ -129,7 +181,7 @@ export default function FundDetail() {
                     Oracle Resolver
                   </div>
                   <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
-                    Chainlink
+                    {marketField[market.marketField].content[market.apiType].api_name}
                   </div>
                 </div>
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
@@ -138,33 +190,9 @@ export default function FundDetail() {
                   </div>
                   <div className="self-stretch justify-start">
                     <span className="text-white text-lg font-medium font-satoshi leading-relaxed">
-                      This market will resolve to “Yes” if Vladimir Putin
-                      remains the President of Russia without interruption from
-                      March 25, 2024 through December 31, 2024, 11:59 PM ET.
-                      Otherwise, this market will resolve to “No”. The
-                      resolution source for this market will be the CIA World
-                      Factbook page for Russia, currently available at{" "}
+                      {market.description}
                     </span>
-                    <span className="text-white text-lg font-medium font-satoshi underline leading-relaxed">
-                      https://www.cia.gov/the-world-factbook/countries/russia/#government
-                    </span>
-                    <span className="text-white text-lg font-medium font-satoshi leading-relaxed">
-                      . A consensus of credible reporting will also suffice.
-                      <br />
-                      <br />
-                      There are{`"`}
-                    </span>
-                    <span className="text-[#3fd145] text-lg font-medium font-satoshi underline leading-relaxed">
-                      taker fees
-                    </span>
-                    <span className="text-white text-lg font-medium font-satoshi leading-relaxed">
-                      {`"`}on this market. The taker fees apply when you match an
-                      existing order on the order book. The taker fees are .075
-                      times the price, times the potential profit (e.g., Taker
-                      Fee per share = .1*Price/100*(1-Price/100)). Thus, the
-                      taker fee to buy 100 shares at 20 cents would be:
-                      100*.075*(20/100)*(80/100) = $1.20.
-                    </span>
+
                   </div>
                   <div className="self-stretch inline-flex justify-between items-center">
                     <div className="flex justify-center items-end cursor-pointer gap-2">
@@ -204,7 +232,7 @@ export default function FundDetail() {
                 <GoQuestion className="text-gray font-bold" />
               </div>
             </div>
-            <SolCounter />
+            <SolCounter amount={fundAmount} setAmount={setAmount} />
           </div>
           <div className="self-stretch flex flex-col justify-start items-start gap-4">
             <div className="self-stretch inline-flex justify-between items-center">
@@ -212,7 +240,7 @@ export default function FundDetail() {
                 Fund Amount
               </div>
               <div className="justify-start text-[#838587] text-base font-bold font-satoshi leading-none">
-                5 SOL
+                {fundAmount} SOL
               </div>
             </div>
             <div className="self-stretch inline-flex justify-between items-center">
@@ -241,7 +269,8 @@ export default function FundDetail() {
             <div
               data-size="Big"
               data-type="Prime"
-              className="self-stretch px-6 py-3.5 bg-[#07b3ff] rounded-2xl shadow-[inset_0px_3px_0px_0px_rgba(255,255,255,0.16)] shadow-[inset_0px_-3px_0px_0px_rgba(27,27,27,0.16)] inline-flex justify-center items-center gap-2"
+              onClick={() => onFund()}
+              className="self-stretch px-6 py-3.5 hover:cursor-pointer bg-[#07b3ff] hover:bg-[#07b3ff]/50 rounded-2xl shadow-[inset_0px_3px_0px_0px_rgba(255,255,255,0.16)] inline-flex justify-center items-center gap-2"
             >
               <div className="justify-start text-[#111111] text-xl font-medium font-satoshi leading-7">
                 Fund Now

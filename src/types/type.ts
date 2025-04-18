@@ -1,4 +1,6 @@
 import { init } from "next/dist/compiled/webpack/webpack";
+import { TransactionInstruction, Keypair, PublicKey } from "@solana/web3.js";
+import { AnchorWallet, WalletContextState } from "@solana/wallet-adapter-react";
 
 export interface SidebarNavItemProps {
   label:
@@ -50,6 +52,7 @@ export interface PendingData {
 
 export interface ProposeType {
   marketField: number;
+  imageUrl: string;
   apiType: number;
   question: string;
   feedName: string;
@@ -66,5 +69,66 @@ export interface ProposeType {
   TokenPrice: number,
   value: number,
   range: number,
-  creator: string
+  creator: string,
+  description: string
 }
+
+export type GlobalSettingType = {
+    creatorFeeAmount: number;
+    liqudityUserFeeAmount: number;
+    bettingUserFeeAmount: number;
+    marketCount: number;
+    decimal: number;
+    feePercentage: number;
+};
+  
+export type CreateMarketType = {
+    marketID: String;
+    tokenAmount: number;
+    tokenPrice: number;
+    nameA: String;
+    nameB: String;
+    symbolA: String;
+    symbolB: String;
+    urlA: String;
+    urlB: String;
+    date: String;
+    value: number;
+    range: number;
+    feed: Keypair;
+    wallet: WalletContextState,
+    anchorWallet: AnchorWallet,
+};
+
+export type DepositeLiquidityType = {
+    market_id: string,
+    amount: number,
+    wallet: WalletContextState,
+}
+
+export type BetType = {
+    creator: string,
+    player: string,
+    amount: number,
+    isYes: boolean,
+    token: string
+}
+
+export type OracleType = {
+    creator: string,
+}
+
+export type RegistType = {
+    url: String,
+    task: String,
+    name: String,
+    wallet: AnchorWallet,
+    cluster: 'Devnet' | 'Mainnet'
+}
+
+export type MarketStatus =
+  "INIT" |
+  "PENDING" |
+  "ACTIVE" |
+  "CLOSED"
+  

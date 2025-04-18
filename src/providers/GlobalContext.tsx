@@ -1,14 +1,38 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-
+import { MarketStatus } from "@/types/type";
 // Define ActiveTab type
-type ActiveTabType = "ActiveMarket" | "PendingMarket";
+type MarketDataType = {
+  "_id": string,
+  "marketField": number,
+  "apiType": number,
+  "task": string,
+  "creator": string,
+  "tokenA": string,
+  "tokenB": string,
+  "market": string,
+  "question": string,
+  "feedName": string,
+  "value": number,
+  "range": number,
+  "date": string,
+  "marketStatus": string,
+  "imageUrl": string,
+  "createdAt": string,
+  "__v": number,
+  "playerACount": number,
+  "playerBCount": number,
+  "totalInvestment": number,
+  "description": string
+}
 
 // Define Global Context Type
 interface GlobalContextType {
-  activeTab: ActiveTabType;
-  setActiveTab: (tab: ActiveTabType) => void;
+  activeTab: MarketStatus;
+  markets: MarketDataType[];
+  setActiveTab: (tab: MarketStatus) => void;
+  formatMarketData: (data: MarketDataType[]) => void;
 }
 
 // Create Context
@@ -16,10 +40,15 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 // Create Global Provider
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTabType>("ActiveMarket");
+  const [activeTab, setActiveTab] = useState<MarketStatus>("ACTIVE");
+  const [markets, setMarkets] = useState<MarketDataType[]>([]);
+
+  const formatMarketData = (data: MarketDataType[]) => {
+    setMarkets(data);
+  }
 
   return (
-    <GlobalContext.Provider value={{ activeTab, setActiveTab }}>
+    <GlobalContext.Provider value={{ activeTab, markets, setActiveTab, formatMarketData }}>
       {children}
     </GlobalContext.Provider>
   );

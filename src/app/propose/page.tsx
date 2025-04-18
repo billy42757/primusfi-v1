@@ -12,15 +12,17 @@ import { ProposeType } from "@/types/type";
 import axios from "axios";
 import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
 import { marketField } from "@/data/data";
-import { findJsonPathsForKey } from "@/utils";
-import { Connection, VersionedTransaction } from "@solana/web3.js";
+import { findJsonPathsForKey, uploadToPinata } from "@/utils";
+import { createMarket } from "@/components/prediction_market_sdk";
+import { customizeFeed } from "@/components/oracle_service/simulateFeed";
+import { errorAlert, infoAlert } from "@/components/elements/ToastGroup";
+import { useRouter } from "next/navigation";
 
 export default function Propose() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const wallet = useAnchorWallet()
-  const { sendTransaction, publicKey } = useWallet()
+  const wallet = useWallet()
   const [isChecked, setIsChecked] = useState(false);
   const [marketFieldIndex, setMarketFieldIndex] = useState(0);
   const [marketFieldContentIndex, setMarketFieldContentIndex] = useState(0);
@@ -29,7 +31,9 @@ export default function Propose() {
   const [range, setRange] = useState(0);
   const [rangeOpen, setRangeOpen] = useState(false);
   const [marketFieldContentOpen, setMarketFieldContentOpen] = useState(false);
-  const connection = new Connection("https://api.devnet.solana.com");
+  const [isUploading, setUploading] = useState(false);
+  const router = useRouter()
+  const anchorWallet = useAnchorWallet();
   // useEffect(() => {
   //   document.getElementsByTagName("body")[0].addEventListener("click", (e) => {
   //     setMarketFieldOpen(false);
@@ -39,6 +43,7 @@ export default function Propose() {
   const [error, setError] = useState({
     question: "",
     feedName: "",
+    imageUrl: "",
     dataLink: "",
     date: "",
     ATokenName: "",
@@ -50,13 +55,15 @@ export default function Propose() {
     TokenAmount: "",
     TokenPrice: "",
     value: "",
-    checkbox: ""
+    checkbox: "",
+    description: ""
   });
   const [data, setData] = useState<ProposeType>({
     // Provide default values based on the ProposeType structure
     marketField: marketFieldIndex,
     apiType: marketFieldContentIndex,
     question: "",
+    imageUrl: "",
     feedName: "",
     dataLink: "",
     date: "",
@@ -72,13 +79,40 @@ export default function Propose() {
     value: 0,
     range: 0,
     creator: "",
+    description: ""
   });
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
+      setError((prevError) => ({
+        ...prevError,
+        imageUrl: "",
+      })); // Reset error state for imageUrl
+
       const file = event.target.files[0];
+
+      if (!file) {
+        errorAlert("Invalid file!");
+        console.log("Invalid file!");
+        return
+      }
+      setUploading(true);
+      const imageUrl = await uploadToPinata(file);
+
+      if (!imageUrl) {
+        errorAlert("Failed uploading image!");
+        console.log("Invalid upload!");
+        return
+      }
+
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file)); // Create preview URL
+      setData((prevData) => ({
+        ...prevData,
+        imageUrl: imageUrl,
+      }));
+      infoAlert("Image uploaded successfully!");
+      setUploading(false);
     }
   };
 
@@ -94,7 +128,7 @@ export default function Propose() {
     }));
   }
 
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.preventDefault();
     const { name, value } = e.target as HTMLInputElement;
 
@@ -111,10 +145,11 @@ export default function Propose() {
 
   const onSubmit = async () => {
     try {
-      const market_detail = marketField[marketFieldIndex].content[marketFieldContentIndex]
+      const market_detail = marketField[marketFieldIndex].content[marketFieldContentIndex];
       const need_key = market_detail.needed_data;
       const params = [];
-      if (!publicKey) {
+
+      if (!wallet || !wallet.publicKey || !anchorWallet) {
         return
       }
 
@@ -135,24 +170,43 @@ export default function Propose() {
 
       data.dataLink = api_link;
       data.task = task;
-      data.creator = publicKey.toBase58() || "";
+      data.creator = wallet.publicKey.toBase58() || "";
       data.range = range;
       data.marketField = marketFieldIndex;
       data.apiType = marketFieldContentIndex;
-
       console.log("data", data);
+
       const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
-      console.log("response", res.data);
+      const market_id = res.data.result;
 
-      const vtx = VersionedTransaction.deserialize(Buffer.from(res.data.result, 'base64'));
-      // const signedVtx = await wallet?.signTransaction(vtx);
-      // const tx = await connection.sendTransaction(signedVtx)
-      const tx = await sendTransaction(vtx, connection);
+      const cluster = process.env.CLUSTER === "Mainnet" ? "Mainnet" : "Devnet";
+      const feed_result = await customizeFeed({ url: data.dataLink, task, name: data.feedName, cluster, wallet: anchorWallet });
 
-      console.log(tx);
+      const create_result = await createMarket({
+        marketID: market_id,
+        tokenAmount: data.TokenAmount,
+        tokenPrice: data.TokenPrice,
+        nameA: data.ATokenName,
+        nameB: data.BTokenName,
+        symbolA: data.ATokenSymbol,
+        symbolB: data.BTokenSymbol,
+        urlA: data.ATokenURL,
+        urlB: data.BTokenURL,
+        date: data.date,
+        value: data.value,
+        range: data.range,
+        feed: feed_result.feedKeypair!,
+        wallet,
+        anchorWallet
+      });
 
-      if (res.status === 200) {
-        alert("success");
+      console.log("create result:", create_result);
+
+      const update_res = await axios.post("http://localhost:8080/api/market/add", { data: { ...create_result, id: market_id } });
+
+      if (update_res.status === 200) {
+        infoAlert("Market created successfully!");
+        router.push(`/fund`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -170,6 +224,7 @@ export default function Propose() {
             question: error.response?.data.question || "",
             feedName: error.response?.data.feedName || "",
             dataLink: error.response?.data.dataLink || "",
+            imageUrl: error.response?.data.imageUrl || "",
             date: error.response?.data.date || "",
             ATokenName: error.response?.data.ATokenName || "",
             BTokenName: error.response?.data.BTokenName || "",
@@ -181,6 +236,7 @@ export default function Propose() {
             TokenPrice: error.response?.data.TokenPrice || "",
             checkbox: isChecked ? "" : "Please accept the terms and conditions",
             value: error.response?.data.value || "",
+            description: error.response?.data.description || "",
           });
         } else if (error.response?.status === 500) {
           console.log("Axios Error:", error.response?.data);
@@ -225,12 +281,13 @@ export default function Propose() {
                   onChange={handleImageChange}
                   className="hidden"
                 />
-                Upload photo
+                {isUploading ? "Uploading" : "Upload photo"}
               </div>
             </label>
             <div className="self-stretch justify-start text-[#838587] text-lg font-medium font-satoshi leading-relaxed">
               *File format jpg, png, img. max size 5mb
             </div>
+            <div className={`text-red ${error.imageUrl !== "" ? "" : "invisible"}`}>*Invalid Image</div>
           </div>
           <div className="flex-1 inline-flex flex-col justify-start items-start gap-5">
             <div className="self-stretch flex flex-col justify-start items-start relative gap-2 mb-8">
@@ -240,7 +297,7 @@ export default function Propose() {
               <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setMarketFieldOpen(!marketFieldOpen)}>
                 {marketField[marketFieldIndex].name}
                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                  <path stroke="currentColor" d="m1 1 4 4 4-4" />
                 </svg>
               </button>
 
@@ -264,7 +321,7 @@ export default function Propose() {
               <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setMarketFieldContentOpen(!marketFieldContentOpen)}>
                 {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name}
                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                  <path stroke="currentColor" d="m1 1 4 4 4-4" />
                 </svg>
               </button>
 
@@ -342,7 +399,7 @@ export default function Propose() {
               <button className="self-stretch  hover:cursor-pointer text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center" type="button" onClick={() => setRangeOpen(!rangeOpen)}>
                 {ranges[range]}
                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" fill="none" viewBox="0 0 10 6">
-                  <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                  <path stroke="currentColor" d="m1 1 4 4 4-4" />
                 </svg>
               </button>
 
@@ -455,19 +512,19 @@ export default function Propose() {
             </div>
             {/* ----------------- End of input for token metadata ----------------------------- */}
 
-            {/*<div className="self-stretch h-[200px] flex flex-col justify-start items-start gap-2">
+            <div className="self-stretch h-[200px] flex flex-col justify-start items-start gap-2">
               <div className="self-stretch justify-start text-white text-lg font-medium font-satoshi leading-relaxed">
                 Description
               </div>
               <div className="self-stretch flex-1 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-start">
-                <textarea rows={5} className="flex-1 justify-start text-[#838587] md:text-xl px-4 py-3.5 text-sm font-medium font-satoshi leading-7 w-full outline-none" placeholder="Description..." />
-                 <div className="w-4 h-4 relative opacity-0 overflow-hidden">
+                <textarea rows={5} className="flex-1 justify-start text-[#838587] md:text-xl px-4 py-3.5 text-sm font-medium font-satoshi leading-7 w-full outline-none" name="description" placeholder="Description..." onChange={onInputChange} ></textarea>
+                <div className="w-4 h-4 relative opacity-0 overflow-hidden">
                   <div className="w-3.5 h-3.5 left-[1.33px] top-[0.67px] absolute">
                     <div className="w-3.5 h-3.5 left-0 top-0 absolute outline-[1.50px] outline-offset-[-0.75px] outline-[#838587]" />
                   </div>
-                </div> 
+                </div>
               </div>
-            </div>*/}
+            </div>
             <div className="self-stretch inline-flex justify-start items-center gap-2">
               <input id="default-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" onClick={() => handleCheckboxChange()} />
               <div className="justify-start">
@@ -479,7 +536,7 @@ export default function Propose() {
                 </span>
               </div>
             </div>
-            <div className={`text-red ${error.checkbox !== "" ? "" : "invisible"}`}>*Please check the box to agree to the terms and conditions.</div>
+            <div className={`text-red ${error.description !== "" ? "" : "invisible"}`}>*Please check the box to agree to the terms and conditions.</div>
 
             <div
               data-size="Big"
@@ -522,9 +579,10 @@ export default function Propose() {
             {pendingPredictions.map((prediction, index) => (
               <PendingCard
                 key={index}
+                index={0}
                 category={prediction.category}
                 question={prediction.question}
-                volume={prediction.volume}
+                volume={0}
                 timeLeft={prediction.timeLeft}
                 comments={prediction.comments}
                 imageUrl={prediction.imageUrl}

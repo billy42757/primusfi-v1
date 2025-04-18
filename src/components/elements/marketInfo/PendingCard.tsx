@@ -1,32 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useState } from "react";
 import { FaRegStar } from "react-icons/fa6";
 import Icon from "../Icons";
 import { GiAlarmClock } from "react-icons/gi";
 import { useRouter } from "next/navigation";
-
+import { getCountDown } from "@/utils";
 // Define types for the props
 interface PendingCardProps {
   category: string;
   question: string;
-  volume: string;
+  volume: number;
   timeLeft: string;
   comments: number;
   imageUrl: string;
+  index: number;
 }
 
 const PendingCard: React.FC<PendingCardProps> = ({
+  index,
   category,
   question,
+  comments,
   imageUrl,
+  volume,
+  timeLeft,
 }) => {
   const router = useRouter(); // Initialize router
+  const [counter, setCounter] = useState("7d : 6h : 21m : 46s");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let remainTime = getCountDown(timeLeft)
+      setCounter(remainTime);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Function to navigate to detail page
-  const handleDetailClick = () => {
+  const handleDetailClick = (index: number) => {
     const formattedQuestion = encodeURIComponent(question); // Encode for URL safety
-    router.push(`/fund/${formattedQuestion}`); // Navigate to dynamic page
+    router.push(`/fund/${index}`); // Navigate to dynamic page
   };
 
   return (
@@ -41,7 +57,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
               <Icon name="Message" />
             </div>
             <div className="justify-start text-[#838587] text-sm font-semibold font-interSemi leading-tight">
-              45
+              {comments}
             </div>
           </div>
           <div className="justify-start">
@@ -65,7 +81,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
               <GiAlarmClock size={16} className="text-gray" />
             </div>
             <div className="justify-start text-[#838587] text-xs font-medium font-satoshi leading-[18px]">
-              7d : 6h : 21m : 46s
+              {counter}
             </div>
           </div>
         </div>
@@ -76,7 +92,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
           <div className="self-stretch rounded-xl flex justify-start items-center gap-1">
             <div className="justify-start">
               <span className="text-white text-sm font-medium font-interSemi leading-tight">
-                8.9{" "}
+                {volume.toFixed(4)}
               </span>
               <span className="text-[#838587] text-sm font-medium font-interSemi leading-tight">
                 / 30
@@ -91,7 +107,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
 
       <div className="self-stretch inline-flex justify-start items-center gap-3">
         <button
-          onClick={handleDetailClick} // Call handleDetailClick when clicked
+          onClick={() => handleDetailClick(index)} // Call handleDetailClick when clicked
           className="flex-1 px-4 py-2 bg-[#282828] cursor-pointer rounded-2xl flex justify-center items-center gap-2 transition-all duration-200 ease-in-out transform hover:bg-[#333] active:scale-95"
         >
           <div className="justify-start text-white text-base font-medium font-satoshi leading-normal">

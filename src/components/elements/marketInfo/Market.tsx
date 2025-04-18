@@ -1,11 +1,12 @@
 import { useGlobalContext } from "@/providers/GlobalContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../Navbar";
 import PredictionCard from "./PredictionCard";
 import PendingCard from "./PendingCard";
 import Pagination from "../pagination/Pagination";
 import { categories } from "@/data/data";
 import { PendingData, Prediction } from "@/types/type";
+import axios from "axios";
 
 // Sample data (10 items)
 export const activePredictions: Prediction[] = [
@@ -186,9 +187,17 @@ export const pendingPredictions: PendingData[] = [
 ];
 
 const Market: React.FC = () => {
-  const { activeTab } = useGlobalContext(); // Use Global Context
+  const { activeTab, markets, formatMarketData } = useGlobalContext(); // Use Global Context
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("Trending");
+
+  useEffect(() => {
+    (async () => {
+      const marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=${activeTab}&marketField=0`);
+
+      formatMarketData(marketData.data.data);
+    })()
+  })
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -204,42 +213,43 @@ const Market: React.FC = () => {
 
   // Choose data based on the active tab
   const predictionsToShow =
-    activeTab === "ActiveMarket" ? activePredictions : pendingPredictions;
+    activeTab === "ACTIVE" ? activePredictions : pendingPredictions;
 
   // Filter predictions based on selected category
   const filteredPredictions =
     selectedCategory === "All"
       ? predictionsToShow
       : predictionsToShow.filter(
-          (prediction) => prediction.category === selectedCategory
-        );
+        (prediction) => prediction.category === selectedCategory
+      );
 
   return (
     <div className="flex-1 inline-flex flex-col self-stretch justify-start items-start gap-6">
       <Navbar categories={categories} onCategorySelect={handleCategorySelect} />
       {/* <div className="inline-flex self-stretch justify-start items-start gap-2 flex-wrap"> */}
       <div className="grid 2xl:grid-cols-2 xl:grid-cols-3 sm:grid-cols-2 gap-2 w-full ">
-        {filteredPredictions.map((prediction, index) =>
-          activeTab === "ActiveMarket" ? (
+        {markets.map((prediction, index) =>
+          activeTab === "ACTIVE" ? (
             <PredictionCard
               key={index}
-              category={prediction.category}
+              category={prediction.feedName}
               question={prediction.question}
-              volume={prediction.volume}
-              timeLeft={prediction.timeLeft}
-              comments={prediction.comments}
-              yesPercentage={(prediction as Prediction).yesPercentage}
+              volume={prediction.totalInvestment}
+              timeLeft={prediction.date}
+              comments={0}
+              yesPercentage={prediction.playerACount}
               imageUrl={prediction.imageUrl}
               onVote={() => handleVote()}
             />
           ) : (
             <PendingCard
               key={index}
-              category={prediction.category}
+              index={index}
+              category={prediction.feedName}
               question={prediction.question}
-              volume={prediction.volume}
-              timeLeft={prediction.timeLeft}
-              comments={prediction.comments}
+              volume={prediction.totalInvestment}
+              timeLeft={prediction.date}
+              comments={0}
               imageUrl={prediction.imageUrl}
             />
           )
