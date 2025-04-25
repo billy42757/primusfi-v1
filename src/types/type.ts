@@ -108,10 +108,12 @@ export type DepositeLiquidityType = {
 
 export type BetType = {
     creator: string,
-    player: string,
+    player: AnchorWallet,
+    marketId: string,
     amount: number,
     isYes: boolean,
-    token: string
+    market: string,
+    token: string,
 }
 
 export type OracleType = {
@@ -131,4 +133,27 @@ export type MarketStatus =
   "PENDING" |
   "ACTIVE" |
   "CLOSED"
-  
+
+export type MarketDataType = {
+  "_id": string,
+  "marketField": number,
+  "apiType": number,
+  "task": string,
+  "creator": string,
+  "tokenA": string,
+  "tokenB": string,
+  "market": string,
+  "question": string,
+  "feedName": string,
+  "value": number,
+  "range": number,
+  "date": string,
+  "marketStatus": string,
+  "imageUrl": string,
+  "createdAt": string,
+  "__v": number,
+  "playerACount": number,
+  "playerBCount": number,
+  "totalInvestment": number,
+  "description": string
+}

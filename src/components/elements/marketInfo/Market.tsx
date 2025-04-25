@@ -1,12 +1,15 @@
 import { useGlobalContext } from "@/providers/GlobalContext";
+import { PendingData, Prediction } from "@/types/type";
 import { useEffect, useState } from "react";
-import Navbar from "../Navbar";
+import { categories } from "@/data/data";
+import Pagination from "../pagination/Pagination";
 import PredictionCard from "./PredictionCard";
 import PendingCard from "./PendingCard";
-import Pagination from "../pagination/Pagination";
-import { categories } from "@/data/data";
-import { PendingData, Prediction } from "@/types/type";
+import Navbar from "../Navbar";
 import axios from "axios";
+import { MarketDataType } from "@/types/type";
+import { usePathname } from "next/navigation";
+import { AxiosResponse } from "axios";
 
 // Sample data (10 items)
 export const activePredictions: Prediction[] = [
@@ -187,17 +190,33 @@ export const pendingPredictions: PendingData[] = [
 ];
 
 const Market: React.FC = () => {
-  const { activeTab, markets, formatMarketData } = useGlobalContext(); // Use Global Context
+  const { markets, activeTab, formatMarketData } = useGlobalContext(); // Use Global Context
+  const pathname = usePathname();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("Trending");
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     (async () => {
-      const marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=${activeTab}&marketField=0`);
+      let marketData: AxiosResponse<any, any> = {
+        data: undefined,
+        status: 0,
+        statusText: "",
+        headers: {},
+        config: {
+          headers: new axios.AxiosHeaders()
+        }
+      };
+      if (pathname === "/fund") {
+        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=PENDING&marketField=0`);
+      } else if (pathname === "/") {
+        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=0`);
+      }
 
+      setTotal(marketData.data.total);
       formatMarketData(marketData.data.data);
     })()
-  })
+  }, [pathname])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -205,10 +224,6 @@ const Market: React.FC = () => {
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-  };
-
-  const handleVote = () => {
-    console.log(`Voted`);
   };
 
   // Choose data based on the active tab
@@ -226,20 +241,13 @@ const Market: React.FC = () => {
   return (
     <div className="flex-1 inline-flex flex-col self-stretch justify-start items-start gap-6">
       <Navbar categories={categories} onCategorySelect={handleCategorySelect} />
-      {/* <div className="inline-flex self-stretch justify-start items-start gap-2 flex-wrap"> */}
-      <div className="grid 2xl:grid-cols-2 xl:grid-cols-3 sm:grid-cols-2 gap-2 w-full ">
+      <div className="grid 2xl:grid-cols-2 xl:grid-cols-2 sm:grid-cols-2 gap-2 w-full ">
         {markets.map((prediction, index) =>
           activeTab === "ACTIVE" ? (
             <PredictionCard
               key={index}
-              category={prediction.feedName}
-              question={prediction.question}
-              volume={prediction.totalInvestment}
-              timeLeft={prediction.date}
-              comments={0}
-              yesPercentage={prediction.playerACount}
-              imageUrl={prediction.imageUrl}
-              onVote={() => handleVote()}
+              index={index}
+              currentPage={currentPage}
             />
           ) : (
             <PendingCard
@@ -256,11 +264,13 @@ const Market: React.FC = () => {
         )}
       </div>
 
-      <Pagination
-        totalPages={4}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
+      {
+        total <= 10 ? "" : <Pagination
+          totalPages={Math.ceil(total / 10)}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      }
     </div>
   );
 };

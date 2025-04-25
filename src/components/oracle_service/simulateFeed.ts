@@ -62,7 +62,7 @@ export const customizeFeed = async (param: RegistType) => {
     }
 
     // Get the queue for the network you're deploying on
-    let queue = await getDefaultQueue("https://api.devnet.solana.com");
+    let queue = await getDefaultQueue("https://devnet.helius-rpc.com/?api-key=7e5bbc4c-02f5-46ca-b781-468b275b5758");
 
     // Get the crossbar server client
     const crossbarClient = CrossbarClient.default();
@@ -93,7 +93,7 @@ export const customizeFeed = async (param: RegistType) => {
     
     const vtx = new VersionedTransaction(messageV0);
     const sim = await queue.program.provider.connection.simulateTransaction(vtx);
-    console.log("simulation:", sim);
+    console.log("custom feed simulation:", sim);
 
     vtx.sign([feedKeypair]);
     const signedTx = await param.wallet.signTransaction(vtx);
@@ -106,7 +106,7 @@ export const customizeFeed = async (param: RegistType) => {
     const createV0Tx = await queue.program.provider.connection.sendTransaction(signedTx);
     console.log("tx:", createV0Tx);
     
-    const vTxSig = await queue.program.provider.connection.confirmTransaction(createV0Tx, 'finalized');
+    const vTxSig = await queue.program.provider.connection.confirmTransaction(createV0Tx, "confirmed");
     console.log("confirmation:", vTxSig);
 
     // const initTx = await asV0Tx({

@@ -4,8 +4,20 @@ import React from "react";
 import Market from "@/components/elements/marketInfo/Market";
 import RecentList from "@/components/elements/marketInfo/RecentList";
 import MarketCarousel from "@/components/elements/carousel/MarketCarousel";
+import { useGlobalContext } from "@/providers/GlobalContext";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const pathname = usePathname();
+  const { setActiveTab } = useGlobalContext(); // Ensure setActiveTab exists in context
+
+  useEffect(() => {
+    if (pathname === "/") {
+      setActiveTab("ACTIVE"); // Update tab
+    }
+  }, [pathname, setActiveTab]);
+
   return (
     <div className="self-stretch sm:px-[42px] px-5 inline-flex flex-col justify-start items-start gap-[50px] overflow-auto">
       <div className="self-stretch relative">

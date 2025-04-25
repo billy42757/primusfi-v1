@@ -115,7 +115,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
           </div>
         </button>
 
-        <button
+        {/* <button
           data-size="Small"
           data-type="Secondary"
           className="flex-1 px-4 py-2 bg-[#111111] cursor-pointer rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(255,255,255,0.16)] outline-1 outline-offset-[-1px] outline-[#07b3ff] flex justify-center items-center gap-2 transition-all duration-200 ease-in-out transform hover:text-white active:scale-95"
@@ -123,7 +123,7 @@ const PendingCard: React.FC<PendingCardProps> = ({
           <div className="justify-start text-[#07b3ff] text-base font-medium font-satoshi leading-normal">
             Fund now
           </div>
-        </button>
+        </button> */}
       </div>
     </div>
   );

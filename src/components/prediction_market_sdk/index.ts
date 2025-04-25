@@ -13,11 +13,11 @@ import {
   METADATA_SEED,
   MINT_SEED_A,
   SOL_USDC_FEED,
-  feeAuthority
+  feeAuthority,
+  tokenAAmount
 } from "./constants";
 import { GlobalSettingType, CreateMarketType, DepositeLiquidityType, BetType, OracleType } from "../../types/type";
 import { SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import { getAssociatedTokenAccount, getOrCreateATAInstruction } from "./util";
 import idl  from "./idl/prediction.json";
 import { BN } from 'bn.js';
@@ -48,7 +48,7 @@ export const createMarket = async (param: CreateMarketType) => {
   console.log("here start");
 
   const creator = param.wallet.publicKey;
-  console.log("creator:", param.wallet.publicKey);
+  console.log("creator:", param.wallet.publicKey.toBase58());
   
   let market = PublicKey.findProgramAddressSync(
     [Buffer.from(MARKET_SEED), Buffer.from(param.marketID)],
@@ -83,11 +83,11 @@ export const createMarket = async (param: CreateMarketType) => {
     ],
     TOKEN_METADATA_PROGRAM_ID
   )[0];
-  console.log("first transaction:");
   let militime =  new Date(param.date as string).getTime();
+  
   const initTx = await program.methods
     .initMarket({
-      value: new BN(param.value),
+      value: param.value,
       marketId: param.marketID,
       range: param.range,
       tokenAmount: new BN(param.tokenAmount),
@@ -166,6 +166,7 @@ export const createMarket = async (param: CreateMarketType) => {
   
   const vtx = new VersionedTransaction(messageV0);
   const sim = await solConnection.simulateTransaction(vtx);
+  console.log("create market simulator:", sim);
   
   const signedTx = await param.wallet.signTransaction(vtx);
 
@@ -192,6 +193,7 @@ export const createMarket = async (param: CreateMarketType) => {
     tokenA,
     tokenB,
     market,
+    feedAddress: param.feed.publicKey.toBase58()
   };
 };
 
@@ -249,58 +251,87 @@ export const depositLiquidity = async (param: DepositeLiquidityType) => {
   return status;
 }
 
-// export const marketBetting = async (param: BetType) => {
-//   const creatorPubkey = new PublicKey(param.creator);
-//   const playerPubkey = new PublicKey(param.player);
-//   const tokenPubkey = new PublicKey(param.token);
-//   const market = PublicKey.findProgramAddressSync([Buffer.from(MARKET_SEED), creatorPubkey.toBuffer()], PREDICTION_ID)[0];
-//   let pdaTokenAccount = await getAssociatedTokenAccount(market, tokenPubkey);
-//   let [playerTokenAccount, player_ata_instruction] = await getOrCreateATAInstruction(tokenPubkey, playerPubkey, solConnection );
+export const marketBetting = async (param: BetType) => {
+  const creatorPubkey = new PublicKey(param.creator);
+  const playerPubkey = param.player.publicKey;
+  const tokenPubkey = new PublicKey(param.token);
+  const market = new PublicKey(param.market);
+  
+  let pdaTokenAccount = await getAssociatedTokenAccount(market, tokenPubkey);
+  let [playerTokenAccount, player_ata_instruction] = await getOrCreateATAInstruction(tokenPubkey, playerPubkey, solConnection );
 
-//   const tx = await program.methods.createBet({
-//     amount: new BN(param.amount * LAMPORTS_PER_SOL),
-//     isYes: param.isYes,
-//   }).accounts({
-//     user: playerPubkey,
-//     creator: creatorPubkey,
-//     tokenMint: tokenPubkey,
-//     pdaTokenAccount: pdaTokenAccount,
-//     userTokenAccount: playerTokenAccount,
-//     feeAuthority: feeAuthority,
-//     market,
-//     globalPDA,
-//     tokenProgram: TOKEN_PROGRAM_ID,
-//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-//     tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-//     systemProgram: SystemProgram.programId,
-//   }).transaction();
+  const tx = await program.methods.createBet({
+    marketId: param.marketId,
+    amount: new BN(param.amount),
+    isYes: param.isYes,
+  }).accounts({
+    user: playerPubkey,
+    creator: creatorPubkey,
+    tokenMint: tokenPubkey,
+    pdaTokenAccount: pdaTokenAccount,
+    userTokenAccount: playerTokenAccount,
+    feeAuthority: feeAuthority,
+    market,
+    global: globalPDA,
+    tokenProgram: TOKEN_PROGRAM_ID,
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+    systemProgram: SystemProgram.programId,
+  }).transaction();
 
-//   let latestBlockHash = await provider.connection.getLatestBlockhash(
-//     provider.connection.commitment
-//   );
+  let latestBlockHash = await solConnection.getLatestBlockhash(
+    solConnection.commitment
+  );
 
-//   const betTx = new Transaction({
-//     feePayer: playerPubkey,
-//     ...latestBlockHash,
-//   });
-//   if (player_ata_instruction) {
-//     betTx.add(player_ata_instruction);
-//   }
+  const betTx = new Transaction({
+    feePayer: playerPubkey,
+    ...latestBlockHash,
+  });
+  if (player_ata_instruction) {
+    betTx.add(player_ata_instruction);
+  }
 
-//   betTx.add(tx);
-//   const messageV0 = new TransactionMessage({
-//     payerKey: playerPubkey,
-//     recentBlockhash: latestBlockHash.blockhash,
-//     instructions: betTx.instructions,
-//   }).compileToV0Message();
+  betTx.add(tx);
+  const messageV0 = new TransactionMessage({
+    payerKey: playerPubkey,
+    recentBlockhash: latestBlockHash.blockhash,
+    instructions: betTx.instructions,
+  }).compileToV0Message();
 
-//   const vtx = new VersionedTransaction(messageV0);
+  const vtx = new VersionedTransaction(messageV0);
 
-//   const serializedTx = vtx.serialize();
-//   const base64Transaction = Buffer.from(serializedTx).toString("base64");
+  const sim = await solConnection.simulateTransaction(vtx);
+  console.log("betting sim:", sim);
+  
+  if (sim.value.err) {
+    console.log("🤖Simulation error🤖:", sim.value.err);
+    throw new Error("🤖Transaction simulation failed when betting.🤖");
+  }
 
-//   return base64Transaction;
-// }
+  const signedTx = await param.player.signTransaction(vtx);
+  const createV0Tx = await solConnection.sendTransaction(signedTx);
+  console.log("betting tx🤖:", createV0Tx);
+  
+  const vTxSig = await solConnection.confirmTransaction(createV0Tx, 'finalized');
+  console.log("🤖confirmation🤖", vTxSig);
+
+  const info = await program.account.market.fetch(market, "confirmed");
+  //@ts-ignore
+  console.log("token a amount:", Number(info.tokenAAmount));
+  //@ts-ignore
+  console.log("token b amount:", Number(info.tokenBAmount));
+    //@ts-ignore
+  console.log("token a price:", Number(info.tokenPriceA));
+  //@ts-ignore
+  console.log("token b price:", Number(info.tokenPriceB));
+
+  return {
+    token_a_amount: Number(info.tokenAAmount),
+    token_b_amount: Number(info.tokenBAmount),
+    token_a_price: Number(info.tokenPriceA),
+    token_b_price: Number(info.tokenPriceB),
+  }
+}
 
 // export const getOracleResult = async (params: OracleType) => {
 //   const creatorPubkey = new PublicKey(params.creator);

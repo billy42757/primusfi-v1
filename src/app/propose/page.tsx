@@ -15,12 +15,15 @@ import { marketField } from "@/data/data";
 import { findJsonPathsForKey, uploadToPinata } from "@/utils";
 import { createMarket } from "@/components/prediction_market_sdk";
 import { customizeFeed } from "@/components/oracle_service/simulateFeed";
-import { errorAlert, infoAlert } from "@/components/elements/ToastGroup";
+import { errorAlert, infoAlert, warningAlert } from "@/components/elements/ToastGroup";
 import { useRouter } from "next/navigation";
+import { useGlobalContext } from "@/providers/GlobalContext";
+import { ClipLoader } from "react-spinners";
 
 export default function Propose() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [active, setActive] = useState(true);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const wallet = useWallet()
   const [isChecked, setIsChecked] = useState(false);
@@ -33,7 +36,9 @@ export default function Propose() {
   const [marketFieldContentOpen, setMarketFieldContentOpen] = useState(false);
   const [isUploading, setUploading] = useState(false);
   const router = useRouter()
+  const { markets } = useGlobalContext();
   const anchorWallet = useAnchorWallet();
+
   // useEffect(() => {
   //   document.getElementsByTagName("body")[0].addEventListener("click", (e) => {
   //     setMarketFieldOpen(false);
@@ -150,8 +155,11 @@ export default function Propose() {
       const params = [];
 
       if (!wallet || !wallet.publicKey || !anchorWallet) {
+        warningAlert("Please connect wallet!");
         return
       }
+
+      setActive(false);
 
       for (let index = 0; index < need_key.length; index++) {
         const element = need_key[index];
@@ -159,6 +167,7 @@ export default function Propose() {
 
         if (elem_val.value === "") {
           setNeededDataError(true);
+          setActive(true);
           return
         }
         params.push(elem_val.value)
@@ -174,7 +183,7 @@ export default function Propose() {
       data.range = range;
       data.marketField = marketFieldIndex;
       data.apiType = marketFieldContentIndex;
-      console.log("data", data);
+      console.log("data:", data);
 
       const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
       const market_id = res.data.result;
@@ -238,18 +247,29 @@ export default function Propose() {
             value: error.response?.data.value || "",
             description: error.response?.data.description || "",
           });
+
         } else if (error.response?.status === 500) {
           console.log("Axios Error:", error.response?.data);
         }
       } else {
         console.error('Unexpected error:', error);
-        alert(error)
+        infoAlert(JSON.stringify(error));
       }
     }
+
+    setActive(true);
   }
   return (
-    <div className="px-[50px] flex-col 2xl:flex-row self-stretch inline-flex justify-start items-start gap-[50px] overflow-auto">
-      <div className="flex-1 p-8 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-center items-center gap-8">
+    <div className="px-[50px] flex-col 2xl:flex-row self-stretch inline-flex justify-start items-start gap-[50px] overflow-auto relative">
+      <div className="flex-1 p-8 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-center items-center gap-8 relative">
+        {active ? "" : <div className="absolute flex justify-center items-center w-full h-full bg-[#1e1e1e]/50 backdrop-blur-sm z-20 rounded-2xl">
+          <ClipLoader
+            color="#ffffff"
+            size={300}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </div>}
         <div className="self-stretch flex flex-col justify-start items-start gap-2">
           <div className="justify-start text-white text-[40px] font-medium font-rubik leading-[48px]">
             Market Proposition
@@ -387,7 +407,7 @@ export default function Propose() {
                 Prediction Value
               </div>
               <div className="self-stretch bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-between items-center">
-                <input type="number" className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" name="value" onChange={onInputChange} min={0} />
+                <input type="number" className="outline-none flex-1 justify-start text-[#838587] px-4 py-3.5 md:text-lg text-sm font-medium font-satoshi leading-7" placeholder="150" name="value" onChange={onInputChange} min={0} />
               </div>
               <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
             </div>
@@ -525,6 +545,8 @@ export default function Propose() {
                 </div>
               </div>
             </div>
+            <div className={`text-red ${error.description !== "" ? "" : "invisible"}`}>*Please fillout this field.</div>
+
             <div className="self-stretch inline-flex justify-start items-center gap-2">
               <input id="default-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" onClick={() => handleCheckboxChange()} />
               <div className="justify-start">
@@ -536,7 +558,7 @@ export default function Propose() {
                 </span>
               </div>
             </div>
-            <div className={`text-red ${error.description !== "" ? "" : "invisible"}`}>*Please check the box to agree to the terms and conditions.</div>
+            <div className={`text-red ${error.checkbox !== "" ? "" : "invisible"}`}>*Please check the box to agree to the terms and conditions.</div>
 
             <div
               data-size="Big"
@@ -550,7 +572,7 @@ export default function Propose() {
           </div>
         </div>
       </div>
-      <div className="2xl:w-[428px] w-auto  p-8 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-center items-center gap-8">
+      {/* <div className="2xl:w-[428px] w-auto  p-8 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex flex-col justify-center items-center gap-8">
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           <div className="self-stretch inline-flex justify-start items-center gap-4">
             <div className="flex-1 justify-start text-white text-2xl font-medium font-rubik leading-loose">
@@ -576,15 +598,15 @@ export default function Propose() {
             </div>
           </div>
           <div className="self-stretch rounded-2xl grid md:grid-cols-2 xl:grid-cols-3 gap-2 2xl:inline-flex justify-start items-start 2xl:gap-4 flex-wrap content-start">
-            {pendingPredictions.map((prediction, index) => (
+            {markets.map((prediction, index) => (
               <PendingCard
                 key={index}
-                index={0}
-                category={prediction.category}
+                index={index}
+                category={prediction.feedName}
                 question={prediction.question}
-                volume={0}
-                timeLeft={prediction.timeLeft}
-                comments={prediction.comments}
+                volume={prediction.totalInvestment}
+                timeLeft={prediction.date}
+                comments={0}
                 imageUrl={prediction.imageUrl}
               />
             ))}
@@ -597,7 +619,7 @@ export default function Propose() {
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

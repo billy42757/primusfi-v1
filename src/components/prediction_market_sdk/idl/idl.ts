@@ -190,7 +190,7 @@ export type Prediction = {
         },
         {
           "name": "creator",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -399,7 +399,7 @@ export type Prediction = {
           },
           {
             "name": "value",
-            "type": "u64"
+            "type": "f64"
           },
           {
             "name": "range",
@@ -454,6 +454,10 @@ export type Prediction = {
           {
             "name": "resolutionDate",
             "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
@@ -503,7 +507,7 @@ export type Prediction = {
         "fields": [
           {
             "name": "value",
-            "type": "u64"
+            "type": "f64"
           },
           {
             "name": "range",
@@ -668,7 +672,7 @@ export type Prediction = {
         },
         {
           "name": "value",
-          "type": "u64",
+          "type": "f64",
           "index": false
         },
         {
@@ -746,6 +750,21 @@ export type Prediction = {
           "index": false
         }
       ]
+    },
+    {
+      "name": "BettingEvent",
+      "fields": [
+        {
+          "name": "tokenAPrice",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "tokenBPrice",
+          "type": "u64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -776,21 +795,26 @@ export type Prediction = {
     },
     {
       "code": 6005,
+      "name": "InvalidCreator",
+      "msg": "Invalid creator"
+    },
+    {
+      "code": 6006,
       "name": "InvalidFeeAuthority",
       "msg": "Invalid fee authority"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "NotPreparing",
       "msg": "Not preparing status"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidMarket",
       "msg": "Invalid market"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "MarketNotActive",
       "msg": "Market is not active"
     }
@@ -989,7 +1013,7 @@ export const IDL: Prediction = {
         },
         {
           "name": "creator",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -1198,7 +1222,7 @@ export const IDL: Prediction = {
           },
           {
             "name": "value",
-            "type": "u64"
+            "type": "f64"
           },
           {
             "name": "range",
@@ -1253,6 +1277,10 @@ export const IDL: Prediction = {
           {
             "name": "resolutionDate",
             "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
@@ -1302,7 +1330,7 @@ export const IDL: Prediction = {
         "fields": [
           {
             "name": "value",
-            "type": "u64"
+            "type": "f64"
           },
           {
             "name": "range",
@@ -1467,7 +1495,7 @@ export const IDL: Prediction = {
         },
         {
           "name": "value",
-          "type": "u64",
+          "type": "f64",
           "index": false
         },
         {
@@ -1545,6 +1573,21 @@ export const IDL: Prediction = {
           "index": false
         }
       ]
+    },
+    {
+      "name": "BettingEvent",
+      "fields": [
+        {
+          "name": "tokenAPrice",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "tokenBPrice",
+          "type": "u64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -1575,21 +1618,26 @@ export const IDL: Prediction = {
     },
     {
       "code": 6005,
+      "name": "InvalidCreator",
+      "msg": "Invalid creator"
+    },
+    {
+      "code": 6006,
       "name": "InvalidFeeAuthority",
       "msg": "Invalid fee authority"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "NotPreparing",
       "msg": "Not preparing status"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidMarket",
       "msg": "Invalid market"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "MarketNotActive",
       "msg": "Market is not active"
     }

@@ -45,12 +45,13 @@ export default function FundDetail() {
   const onFund = async () => {
     try {
       const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
-      console.log("result market status:", status);
 
       const active = status === "active" ? true : false;
+
       console.log("status:", active);
 
       const result = await axios.post("http://localhost:8080/api/market/liquidity", { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
+
       if (result.status === 200) {
         infoAlert("Market created successfully!");
         router.replace(`/fund`);
@@ -192,17 +193,16 @@ export default function FundDetail() {
                     <span className="text-white text-lg font-medium font-satoshi leading-relaxed">
                       {market.description}
                     </span>
-
                   </div>
-                  <div className="self-stretch inline-flex justify-between items-center">
-                    <div className="flex justify-center items-end cursor-pointer gap-2">
+                  <div className="self-stretch inline-flex justify-end">
+                    {/* <div className="flex justify-center items-end cursor-pointer gap-2">
                       <div className="justify-start text-[#3fd145] text-lg font-medium font-satoshi leading-relaxed">
                         Read more
                       </div>
                       <div className="w-4 h-4 relative overflow-hidden">
                         <GoArrowDownRight color="#3fd145" size={16} />
                       </div>
-                    </div>
+                    </div> */}
                     <div className="text-center justify-start text-[#838587] text-sm font-medium font-satoshi">
                       Note: This event are legally protected
                     </div>

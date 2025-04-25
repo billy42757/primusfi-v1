@@ -65,13 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({ categories, onCategorySelect }) => {
           <div
             key={index}
             onClick={() => handleCategorySelect(category.name)}
-            className={`sm:px-5 px-3 pb-3 border-b-[1.5px] inline-flex cursor-pointer justify-start items-center gap-1
-      transition-all duration-300 ease-in-out relative group
-      ${
-        activeCategory === category.name
-          ? "border-[#07b3ff] text-[#07b3ff]"
-          : "border-transparent text-[#838587] hover:text-[#07b3ff]/80"
-      }`}
+            className={`sm:px-5 px-3 pb-3 border-b-[1.5px] inline-flex cursor-pointer justify-start items-center gap-1 transition-all duration-300 ease-in-out relative group ${activeCategory === category.name ? "border-[#07b3ff] text-[#07b3ff]" : "border-transparent text-[#838587] hover:text-[#07b3ff]/80"}`}
           >
             {/* Hover underline animation */}
             <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#07b3ff] transition-all duration-300 ease-in-out group-hover:w-full" />
@@ -93,9 +87,7 @@ const Navbar: React.FC<NavbarProps> = ({ categories, onCategorySelect }) => {
       <div
         data-active={showFilter ? "On" : "Off"}
         ref={filterRef} // Attach the ref to the filter section
-        className={`sm:px-4 sm:py-2.5 px-2.5 py-1 bg-[#282828] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] 
-    outline-[#313131] flex justify-start items-center gap-2 transition-all duration-300 ease-in-out 
-    hover:bg-[#343434] hover:shadow-md active:scale-95 active:bg-[#3c3c3c]`}
+        className={`sm:px-4 sm:py-2.5 px-2.5 py-1 bg-[#282828] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] outline-[#313131] flex justify-start items-center gap-2 transition-all duration-300 ease-in-out hover:bg-[#343434] hover:shadow-md active:scale-95 active:bg-[#3c3c3c]`}
         onClick={handleFilterClick} // Toggle the filter visibility when clicked
       >
         <div className="w-4 h-4 relative overflow-hidden">
@@ -122,26 +114,23 @@ const Navbar: React.FC<NavbarProps> = ({ categories, onCategorySelect }) => {
           ))}
           <div className="self-stretch inline-flex justify-start items-start gap-2">
             <div
-              className="flex-1 px-4 cursor-pointer py-2.5 rounded-[100px] outline-1 outline-offset-[-1px] 
-  outline-[#838587] flex justify-center items-center gap-1 transition-all duration-300 
-  hover:bg-[#383838] hover:text-white hover:shadow-md active:scale-95"
+              className="flex-1 px-4 cursor-pointer py-2.5 rounded-[100px] outline-1 outline-offset-[-1px] outline-[#838587] flex justify-center items-center gap-1 transition-all duration-300 hover:bg-[#383838] hover:text-white hover:shadow-md active:scale-95"
             >
               <div
-                className="justify-center text-[#838587] text-sm font-medium font-satoshi leading-[14px] 
-    transition-all duration-300 group-hover:text-white"
+                className="justify-center text-[#838587] text-sm font-medium font-satoshi leading-[14px] transition-all duration-300 group-hover:text-white"
               >
                 Reset
               </div>
             </div>
 
-            <div
+            {/* <div
               className="flex-1 px-4 py-2.5 cursor-pointer bg-[#07b3ff] rounded-[100px] flex justify-center 
   items-center gap-1 transition-all duration-300 hover:bg-[#059bdf] hover:shadow-lg active:scale-95"
             >
               <div className="justify-center text-[#111111] text-sm font-medium font-satoshi leading-[14px]">
                 Fund Now
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

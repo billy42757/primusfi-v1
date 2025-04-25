@@ -28,15 +28,13 @@ const HeaderSideBar = ({
 
   return (
     <div
-      className={`self-stretch inline-flex   ${
-        isCollapsed ? "md:w-[104px] w-[280px]" : "md:min-w-[280px]"
-      } bg-[#1E1E1E]   flex flex-col`}
+      className={`self-stretch inline-flex   ${isCollapsed ? "md:w-[104px] w-[280px]" : "md:min-w-[280px]"
+        } bg-[#1E1E1E]   flex flex-col`}
     >
       {/* Logo */}
       <div
-        className={`md:flex hidden flex-none items-center h-20 gap-2 px-6 py-[30px] shrink-0 self-stretch transition-all duration-300 ${
-          isCollapsed ? "justify-center" : "justify-start"
-        }`}
+        className={`md:flex hidden flex-none items-center h-20 gap-2 px-6 py-[30px] shrink-0 self-stretch transition-all duration-300 ${isCollapsed ? "justify-center" : "justify-start"
+          }`}
       >
         <div className="flex items-center gap-2 cursor-pointer">
           <Link href="/">
@@ -88,18 +86,17 @@ const HeaderSideBar = ({
       {/* Social Links */}
 
       <div
-        className={` self-stretch p-6  flex-col ${
-          isCollapsed
-            ? "flex justify-center items-center"
-            : " justify-start items-start inline-flex"
-        } flex-none gap-6  bottom-0`}
+        className={` self-stretch p-6  flex-col ${isCollapsed
+          ? "flex justify-center items-center"
+          : " justify-start items-start inline-flex"
+          } flex-none gap-6  bottom-0`}
       >
         {!isCollapsed && (
           <div className="self-stretch justify-start px-3">
-            <span className="text-white text-2xl font-medium font-satoshi leading-loose">
+            <span className="text-white text-xl font-medium font-satoshi leading-loose">
               Let’s connect
             </span>
-            <span className="text-[#838587] text-2xl font-medium font-satoshi leading-loose">
+            <span className="text-[#838587] text-xl font-medium font-satoshi leading-loose">
               {" "}
               in <br />
               socials platform
@@ -107,11 +104,10 @@ const HeaderSideBar = ({
           </div>
         )}
         <div
-          className={`flex flex-col ${
-            isCollapsed
-              ? "md:justify-center md:items-center"
-              : "justify-start items-start"
-          } gap-2`}
+          className={`flex flex-col ${isCollapsed
+            ? "md:justify-center md:items-center"
+            : "justify-start items-start"
+            } gap-2`}
         >
           <Link
             href="#"
@@ -148,9 +144,8 @@ const HeaderSideBar = ({
         data-size="Small"
         data-type="Tertiary"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`w-8 p-2  ${
-          isCollapsed ? "left-[120px] top-[56px]" : "left-[296px] top-[56px]"
-        } absolute origin-top-left hover:bg-[#3a3a3a] rotate-180 cursor-pointer bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] md:inline-flex hidden justify-start items-center gap-2`}
+        className={`w-8 p-2  ${isCollapsed ? "left-[120px] top-[56px]" : "left-[296px] top-[56px]"
+          } absolute origin-top-left hover:bg-[#3a3a3a] rotate-180 cursor-pointer bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] md:inline-flex hidden justify-start items-center gap-2`}
       >
         <div className="inline-flex flex-col justify-start items-start overflow-hidden">
           <div className="rounded-[3px]" />
