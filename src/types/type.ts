@@ -158,3 +158,5 @@ export type MarketDataType = {
   "totalInvestment": number,
   "description": string
 }
+message.txt
+4 KB
