@@ -70,7 +70,8 @@ export interface ProposeType {
   value: number,
   range: number,
   creator: string,
-  description: string
+  description: string,
+  event?: string
 }
 
 export type GlobalSettingType = {
