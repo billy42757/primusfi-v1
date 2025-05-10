@@ -69,8 +69,7 @@ export interface ProposeType {
   value: number,
   range: number,
   creator: string,
-  description: string,
-  event?: string
+  description: string
 }
 
 export type GlobalSettingType = {
@@ -157,5 +156,3 @@ export type MarketDataType = {
   "totalInvestment": number,
   "description": string
 }
-message.txt
-4 KB
