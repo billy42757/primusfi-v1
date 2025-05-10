@@ -298,7 +298,7 @@ export default function Propose() {
             <div className="flex flex-col gap-4 lg:w-1/4">
               <div className="text-white text-xl font-medium">Step 1: Add a Market Image</div>
               <div className="flex flex-col gap-2">
-                <label className="w-[auto] h-[200px] bg-[#111111] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-center items-center gap-4 relative hover:bg-[#1a1a1a] transition-colors">
+                <label className="w-[200px] h-[200px] bg-[#111111] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-center items-center gap-4 relative hover:bg-[#1a1a1a] transition-colors">
                   {previewUrl && (
                     <img
                       src={previewUrl}
@@ -400,13 +400,17 @@ export default function Propose() {
             <div className="flex flex-col gap-4 p-6 bg-[#111111] rounded-2xl border border-[#313131]">
               <div className="text-white text-xl font-medium">Your Question Preview</div>
               <div className="text-[#838587] text-lg">
-                Will ${data.feedName || "___"} {
-                  data.range === 0 ? "reach a per token price of $" : 
-                  data.range === 1 ? "reach a market cap of $" : "___"
-                }
-                <span className="text-[#07b3ff]">
-                  {data.value ? formatNumber(Number(data.value)) : "___"}
-                </span> by <span className="text-[#07b3ff]">{data.date || "___"}</span>?
+                {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
+                  <>Will {data.feedName || "___"} win the {data.event || "___"} by {data.date || "___"}?</>
+                ) : (
+                  <>Will ${data.feedName || "___"} {
+                    data.range === 0 ? "reach a per token price of $" : 
+                    data.range === 1 ? "reach a market cap of $" : "___"
+                  }
+                  <span className="text-[#07b3ff]">
+                    {data.value ? formatNumber(Number(data.value)) : "___"}
+                  </span> by <span className="text-[#07b3ff]">{data.date || "___"}</span>?</>
+                )}
               </div>
             </div>
 
@@ -414,39 +418,60 @@ export default function Propose() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column */}
               <div className="flex flex-col gap-6">
-                {/* Token Ticker */}
+                {/* Team/Token Name */}
                 <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Token Ticker</div>
+                  <div className="text-[#838587] text-lg">
+                    {marketField[marketFieldIndex].name === "Sports Prediction Market" ? "Team Name" : "Token Ticker"}
+                  </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#07b3ff] text-lg">$</span>
+                    {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                      <span className="text-[#07b3ff] text-lg">$</span>
+                    )}
                     <input
                       type="text"
                       className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                      placeholder="e.g. BTC, ETH, etc."
+                      placeholder={marketField[marketFieldIndex].name === "Sports Prediction Market" ? "e.g. Kansas City Chiefs" : "e.g. BTC, ETH, etc."}
                       name="feedName"
                       onChange={onInputChange}
                     />
                   </div>
-                  <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
+                  <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>
+                    *Please enter a {marketField[marketFieldIndex].name === "Sports Prediction Market" ? "team name" : "token ticker"}
+                  </div>
                 </div>
 
-                {/* Contract Address (if needed) */}
-                {marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data.map((field, index) => (
-                  field.name === "ca" && (
-                    <div key={index} className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg">Contract Address</div>
-                      <input
-                        type="text"
-                        id={field.name}
-                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                        placeholder="Enter contract address"
-                        name={field.name}
-                        onChange={() => setNeededDataError(false)}
-                      />
-                      <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please fill out this field</div>
-                    </div>
-                  )
-                ))}
+                {/* Event Name (for sports) or Contract Address */}
+                {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Event Name</div>
+                    <input
+                      type="text"
+                      id="event"
+                      className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                      placeholder="e.g. Super Bowl, NBA Finals, etc."
+                      name="event"
+                      onChange={onInputChange}
+                    />
+                    <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please fill out this field</div>
+                  </div>
+                ) : (
+                  marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data.map((field, index) => (
+                    field.name === "ca" && (
+                      <div key={index} className="flex flex-col gap-2">
+                        <div className="text-[#838587] text-lg">Contract Address</div>
+                        <input
+                          type="text"
+                          id={field.name}
+                          className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                          placeholder="Enter contract address"
+                          name={field.name}
+                          onChange={() => setNeededDataError(false)}
+                        />
+                        <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please fill out this field</div>
+                      </div>
+                    )
+                  ))
+                )}
 
                 {/* Resolution Date */}
                 <div className="flex flex-col gap-2">
@@ -463,46 +488,50 @@ export default function Propose() {
 
               {/* Right Column */}
               <div className="flex flex-col gap-6">
-                {/* Prediction Type Selection */}
-                <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Prediction Type</div>
-                  <div className="flex gap-4">
-                    <button
-                      className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                        data.range === 0
-                          ? "bg-[#07b3ff] text-[#111111]"
-                          : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                      }`}
-                      onClick={() => setData(prev => ({ ...prev, range: 0 }))}
-                    >
-                      Price Target
-                    </button>
-                    <button
-                      className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                        data.range === 1
-                          ? "bg-[#07b3ff] text-[#111111]"
-                          : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                      }`}
-                      onClick={() => setData(prev => ({ ...prev, range: 1 }))}
-                    >
-                      Market Cap
-                    </button>
+                {/* Prediction Type Selection (only for crypto) */}
+                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Prediction Type</div>
+                    <div className="flex gap-4">
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          data.range === 0
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                        }`}
+                        onClick={() => setData(prev => ({ ...prev, range: 0 }))}
+                      >
+                        Price Target
+                      </button>
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          data.range === 1
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                        }`}
+                        onClick={() => setData(prev => ({ ...prev, range: 1 }))}
+                      >
+                        Market Cap
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Target Value */}
-                <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Target Value</div>
-                  <input
-                    type="number"
-                    className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                    placeholder="Enter target value"
-                    name="value"
-                    onChange={onInputChange}
-                    min={0}
-                  />
-                  <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
-                </div>
+                {/* Target Value (only for crypto) */}
+                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Target Value</div>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                      placeholder="Enter target value"
+                      name="value"
+                      onChange={onInputChange}
+                      min={0}
+                    />
+                    <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
+                  </div>
+                )}
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
