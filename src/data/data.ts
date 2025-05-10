@@ -78,5 +78,57 @@ export const marketField = [
       }
     ]
   },
-  
+  {
+    name: "Sports Prediction Market",
+    content: [
+      {
+        api_name: "NFL",
+        needed_data: [
+          {
+            name: "team",
+            placeholder: "Kansas City Chiefs"
+          },
+          {
+            name: "event",
+            placeholder: "Super Bowl"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nfl/scores/json/Teams`,
+        market_keyword: (...args: string[]) => `team: ${args[0]}, event: ${args[1]}`,
+      },
+      {
+        api_name: "NBA",
+        needed_data: [
+          {
+            name: "team",
+            placeholder: "Los Angeles Lakers"
+          },
+          {
+            name: "event",
+            placeholder: "NBA Finals"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nba/scores/json/Teams`,
+        market_keyword: (...args: string[]) => `team: ${args[0]}, event: ${args[1]}`,
+      },
+      {
+        api_name: "MLB",
+        needed_data: [
+          {
+            name: "team",
+            placeholder: "New York Yankees"
+          },
+          {
+            name: "event",
+            placeholder: "World Series"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/mlb/scores/json/Teams`,
+        market_keyword: (...args: string[]) => `team: ${args[0]}, event: ${args[1]}`,
+      }
+    ]
+  }
 ]
