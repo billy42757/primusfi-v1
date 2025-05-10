@@ -1,4 +1,3 @@
-import { init } from "next/dist/compiled/webpack/webpack";
 import { TransactionInstruction, Keypair, PublicKey } from "@solana/web3.js";
 import { AnchorWallet, WalletContextState } from "@solana/wallet-adapter-react";
 
