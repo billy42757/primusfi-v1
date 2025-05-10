@@ -160,7 +160,7 @@ export default function Home() {
   >("Betting History");
 
   return (
-    <div className="self-stretch h-[1184px] px-[50px] flex-col min-w-[1600px]:flex-row inline-flex justify-start items-start gap-[50px] overflow-auto">
+    <div className="self-stretch h-[1184px] px-[50px] flex-col lg:flex-row inline-flex justify-start items-start gap-[50px] overflow-auto">
       <div className="lg:w-[680px] flex-col lg:flex-row p-6 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-start items-start gap-4">
         <img
           className="sm:w-[100px] sm:h-[100px] w-[50px] h-[50px] rounded-[10px] border border-white"
@@ -171,10 +171,10 @@ export default function Home() {
           <div className="self-stretch inline-flex justify-start items-start gap-4">
             <div className="flex-1 h-[100px] inline-flex flex-col justify-center items-start gap-1">
               <div className="justify-start text-[#3fd145] text-[32px] font-medium font-satoshi leading-loose">
-                Ahmed45
+                User One
               </div>
               <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                @ahmmeada
+                @speculapeuser
               </div>
             </div>
             <div className="flex-1 h-[100px] flex justify-end items-center gap-1">
@@ -185,7 +185,7 @@ export default function Home() {
                   <div className="w-[19.14px] h-[17.50px] left-[2px] top-[3px] absolute opacity-50 bg-[#838587]" />
                 </div>
                 <div className="justify-start text-[#07b3ff] text-xl font-medium font-satoshi leading-relaxed">
-                  0x214..e14sd
+                  Fg21q..e14sd
                 </div>
               </div>
             </div>
@@ -267,11 +267,7 @@ export default function Home() {
             </div>
             <div className="self-stretch justify-start">
               <span className="text-[#838587] text-base font-normal font-satoshi leading-tight">
-                Trump Memes are intended to function as an expression of support
-                for, and engagement with, the ideals and beliefs embodied by the
-                symbol {`"$TRUMP"`} and the associated artwork, and are not intended
-                to be, or to be the subject of, an investment opportunity,
-                investment contract, or security of any type.
+                This is a sample user profile
               </span>
               <span className="text-[#07b3ff] text-base font-bold font-satoshi leading-tight">
                 Show more
