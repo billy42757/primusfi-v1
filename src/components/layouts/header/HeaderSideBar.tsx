@@ -94,12 +94,12 @@ const HeaderSideBar = ({
         {!isCollapsed && (
           <div className="self-stretch justify-start px-3">
             <span className="text-white text-xl font-medium font-satoshi leading-loose">
-              Let’s connect
+              Follow us
             </span>
             <span className="text-[#838587] text-xl font-medium font-satoshi leading-loose">
               {" "}
-              in <br />
-              socials platform
+              on <br />
+              social media
             </span>
           </div>
         )}
@@ -130,11 +130,11 @@ const HeaderSideBar = ({
             <FaXTwitter className="text-white" />
             {!isCollapsed && (
               <div className="justify-start text-white text-base font-medium font-satoshi leading-normal">
-                X (formerly twitter)
+                X (twitter)
               </div>
             )}
             <div className="md:hidden justify-start text-white text-base font-medium font-satoshi leading-normal">
-              X (formerly twitter)
+              X (twitter)
             </div>
           </Link>
         </div>
