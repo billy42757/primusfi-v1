@@ -39,7 +39,7 @@ const MarketCarousel = () => {
               min: 1024,
             },
             items: 1,
-            partialVisibilityGutter:400,
+            partialVisibilityGutter:500,
           },
           mobile: {
             breakpoint: {
@@ -55,7 +55,7 @@ const MarketCarousel = () => {
               min: 464,
             },
             items: 1,
-            partialVisibilityGutter: 0,
+            partialVisibilityGutter: 5,
           },
         }}
         rewind={false}
