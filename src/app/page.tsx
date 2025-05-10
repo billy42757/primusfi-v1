@@ -25,12 +25,13 @@ export default function Home() {
       </div>
       <div className="self-stretch inline-flex flex-col 2xl:flex-row justify-start items-start gap-[50px] ">
         <Market />
-        <div className="md:w-[519px] w-full  inline-flex flex-col justify-start items-start md:gap-6 gap-4">
-          <div className="self-stretch justify-start text-white text-[32px] font-semibold font-['Rubik'] leading-[48px]">
-            📕 Recent Activity
-          </div>
-          <RecentList />
-        </div>
+        <div className="md:w-[519px] w-full inline-flex flex-col justify-start items-start md:gap-6 gap-4 p-6 rounded-2xl shadow-lg border border-[#333]">
+  <div className="self-stretch text-white text-[32px] font-semibold font-['Rubik'] leading-[48px]">
+    Recent Activity
+  </div>
+  <RecentList />
+</div>
+
       </div>
     </div>
   );
