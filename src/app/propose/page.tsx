@@ -20,6 +20,19 @@ import { useRouter } from "next/navigation";
 import { useGlobalContext } from "@/providers/GlobalContext";
 import { ClipLoader } from "react-spinners";
 
+// Add TypeScript interfaces
+interface SportsData {
+  leagues: string[];
+  teams: {
+    [key: string]: string[];
+  };
+  stats: string[];
+}
+
+interface SportsDataType {
+  [key: string]: SportsData;
+}
+
 // Add number formatting function
 const formatNumber = (num: number): string => {
   if (num >= 1e12) return (num / 1e12).toFixed(1) + 'T';
@@ -47,6 +60,56 @@ export default function Propose() {
   const router = useRouter()
   const { markets } = useGlobalContext();
   const anchorWallet = useAnchorWallet();
+
+  // Add new state for sports selection
+  const [selectedSport, setSelectedSport] = useState("");
+  const [selectedLeague, setSelectedLeague] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedStatType, setSelectedStatType] = useState("");
+  const [selectedOpponent, setSelectedOpponent] = useState("");
+  const [sportOpen, setSportOpen] = useState(false);
+  const [leagueOpen, setLeagueOpen] = useState(false);
+  const [teamOpen, setTeamOpen] = useState(false);
+  const [statTypeOpen, setStatTypeOpen] = useState(false);
+  const [opponentOpen, setOpponentOpen] = useState(false);
+
+  // Add new state for win/lose prediction
+  const [predictionOutcome, setPredictionOutcome] = useState<"win" | "lose" | "">("");
+
+  // Sports data structure with proper typing
+  const sportsData: SportsDataType = {
+    basketball: {
+      leagues: ["NBA"],
+      teams: {
+        NBA: ["Lakers", "Celtics", "Warriors", "Bulls", "Heat"]
+      },
+      stats: ["points", "next_game"]
+    },
+    football: {
+      leagues: ["NFL"],
+      teams: {
+        NFL: ["Chiefs", "49ers", "Cowboys", "Packers", "Patriots"]
+      },
+      stats: ["points", "next_game"]
+    },
+    baseball: {
+      leagues: ["MLB"],
+      teams: {
+        MLB: ["Yankees", "Red Sox", "Dodgers", "Cubs", "Giants"]
+      },
+      stats: ["points", "next_game"]
+    },
+    soccer: {
+      leagues: ["Premier League", "La Liga", "Bundesliga", "Serie A"],
+      teams: {
+        "Premier League": ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City"],
+        "La Liga": ["Barcelona", "Real Madrid", "Atletico Madrid", "Sevilla", "Valencia"],
+        "Bundesliga": ["Bayern Munich", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen", "Wolfsburg"],
+        "Serie A": ["Juventus", "Inter Milan", "AC Milan", "Roma", "Napoli"]
+      },
+      stats: ["points", "next_game"]
+    }
+  };
 
   // useEffect(() => {
   //   document.getElementsByTagName("body")[0].addEventListener("click", (e) => {
@@ -170,16 +233,27 @@ export default function Propose() {
 
       setActive(false);
 
-      for (let index = 0; index < need_key.length; index++) {
-        const element = need_key[index];
-        const elem_val = document.getElementById(element.name) as HTMLInputElement;
-
-        if (elem_val.value === "") {
+      // Handle sports prediction data
+      if (marketField[marketFieldIndex].name === "Sports Prediction Market") {
+        if (!selectedSport || !selectedLeague || !selectedTeam || !selectedStatType) {
           setNeededDataError(true);
           setActive(true);
-          return
+          return;
         }
-        params.push(elem_val.value)
+        params.push(selectedSport, selectedLeague, selectedTeam, selectedStatType);
+      } else {
+        // Handle other market types
+        for (let index = 0; index < need_key.length; index++) {
+          const element = need_key[index];
+          const elem_val = document.getElementById(element.name) as HTMLInputElement;
+
+          if (elem_val.value === "") {
+            setNeededDataError(true);
+            setActive(true);
+            return
+          }
+          params.push(elem_val.value)
+        }
       }
 
       const api_link = market_detail.api_link(...params);
@@ -192,6 +266,12 @@ export default function Propose() {
       data.range = range;
       data.marketField = marketFieldIndex;
       data.apiType = marketFieldContentIndex;
+
+      // Update question based on market type
+      if (marketField[marketFieldIndex].name === "Sports Prediction Market") {
+        data.question = `Will ${selectedTeam} ${selectedStatType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} reach ${data.value} by ${data.date}?`;
+      }
+
       console.log("data:", data);
 
       const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
@@ -347,6 +427,13 @@ export default function Propose() {
                           setMarketFieldIndex(index);
                           setMarketFieldOpen(false);
                           setMarketFieldContentIndex(0);
+                          // Reset sports selections when changing market type
+                          if (field.name !== "Sports Prediction Market") {
+                            setSelectedSport("");
+                            setSelectedLeague("");
+                            setSelectedTeam("");
+                            setSelectedStatType("");
+                          }
                         }}
                       >
                         {field.name}
@@ -356,36 +443,75 @@ export default function Propose() {
                 )}
               </div>
 
-              {/* API Selection */}
-              <div className="flex flex-col gap-4">
-                <div className="text-white text-xl font-medium">Step 3: Select Your Data Source</div>
-                <button 
-                  className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
-                  onClick={() => setMarketFieldContentOpen(!marketFieldContentOpen)}
-                >
-                  {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name}
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" d="m1 1 4 4 4-4" />
-                  </svg>
-                </button>
-
-                {marketFieldContentOpen && (
-                  <div className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131]">
-                    {marketField[marketFieldIndex].content.map((field, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors"
-                        onClick={() => {
-                          setMarketFieldContentIndex(index);
-                          setMarketFieldContentOpen(false);
-                        }}
-                      >
-                        {field.api_name}
+              {/* Sports Selection or API Selection */}
+              {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
+                <div className="space-y-4">
+                  <div className="text-white text-xl font-medium">Step 3: Select Your Sport</div>
+                  
+                  {/* Sport Selection */}
+                  <div className="relative">
+                    <div className="text-[#838587] text-lg mb-2">Select Sport</div>
+                    <button 
+                      className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
+                      onClick={() => setSportOpen(!sportOpen)}
+                    >
+                      {selectedSport ? selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1) : "Select a sport"}
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                      </svg>
+                    </button>
+                    {sportOpen && (
+                      <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
+                        {Object.keys(sportsData).map((sport) => (
+                          <div
+                            key={sport}
+                            className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                            onClick={() => {
+                              setSelectedSport(sport);
+                              setSelectedLeague("");
+                              setSelectedTeam("");
+                              setSelectedStatType("");
+                              setSportOpen(false);
+                            }}
+                          >
+                            {sport.charAt(0).toUpperCase() + sport.slice(1)}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <div className="text-white text-xl font-medium">Step 3: Select Your Data Source</div>
+                  <button 
+                    className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
+                    onClick={() => setMarketFieldContentOpen(!marketFieldContentOpen)}
+                  >
+                    {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name}
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                      <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                    </svg>
+                  </button>
+
+                  {marketFieldContentOpen && (
+                    <div className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131]">
+                      {marketField[marketFieldIndex].content.map((field, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                          onClick={() => {
+                            setMarketFieldContentIndex(index);
+                            setMarketFieldContentOpen(false);
+                          }}
+                        >
+                          {field.api_name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -396,17 +522,200 @@ export default function Propose() {
           <div className="flex flex-col gap-8">
             <div className="text-white text-xl font-medium">Step 4: Build Your Prediction Question</div>
             
+            {/* Sports Details Selection (if sports market) */}
+            {marketField[marketFieldIndex].name === "Sports Prediction Market" && selectedSport && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="flex flex-col gap-6">
+                  {/* League Selection */}
+                  <div className="relative">
+                    <div className="text-[#838587] text-lg mb-2">Select League</div>
+                    <button 
+                      className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
+                      onClick={() => setLeagueOpen(!leagueOpen)}
+                    >
+                      {selectedLeague || "Select a league"}
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                      </svg>
+                    </button>
+                    {leagueOpen && (
+                      <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
+                        {sportsData[selectedSport].leagues.map((league) => (
+                          <div
+                            key={league}
+                            className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                            onClick={() => {
+                              setSelectedLeague(league);
+                              setSelectedTeam("");
+                              setSelectedStatType("");
+                              setLeagueOpen(false);
+                            }}
+                          >
+                            {league}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Team Selection */}
+                  {selectedLeague && (
+                    <div className="relative">
+                      <div className="text-[#838587] text-lg mb-2">Select Team</div>
+                      <button 
+                        className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
+                        onClick={() => setTeamOpen(!teamOpen)}
+                      >
+                        {selectedTeam || "Select a team"}
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                          <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                        </svg>
+                      </button>
+                      {teamOpen && (
+                        <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
+                          {sportsData[selectedSport].teams[selectedLeague].map((team) => (
+                            <div
+                              key={team}
+                              className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors"
+                              onClick={() => {
+                                setSelectedTeam(team);
+                                setSelectedStatType("");
+                                setTeamOpen(false);
+                              }}
+                            >
+                              {team}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column */}
+                <div className="flex flex-col gap-6">
+                  {/* Stat Type Selection */}
+                  {selectedTeam && (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg">Prediction Type</div>
+                      <div className="flex gap-4">
+                        <button
+                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                            selectedStatType === "points"
+                              ? "bg-[#07b3ff] text-[#111111]"
+                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                          }`}
+                          onClick={() => {
+                            setSelectedStatType("points");
+                            setSelectedOpponent("");
+                          }}
+                        >
+                          Points
+                        </button>
+                        <button
+                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                            selectedStatType === "next_game"
+                              ? "bg-[#07b3ff] text-[#111111]"
+                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                          }`}
+                          onClick={() => {
+                            setSelectedStatType("next_game");
+                            setSelectedOpponent("");
+                          }}
+                        >
+                          Next Game
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add Win/Lose Selection for next game predictions */}
+                  {selectedStatType === "next_game" && (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg">Prediction</div>
+                      <div className="flex gap-4">
+                        <button
+                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                            predictionOutcome === "win"
+                              ? "bg-[#07b3ff] text-[#111111]"
+                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                          }`}
+                          onClick={() => {
+                            setPredictionOutcome("win");
+                            setSelectedOpponent(""); // Clear any previous opponent selection
+                          }}
+                        >
+                          Win
+                        </button>
+                        <button
+                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                            predictionOutcome === "lose"
+                              ? "bg-[#07b3ff] text-[#111111]"
+                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                          }`}
+                          onClick={() => {
+                            setPredictionOutcome("lose");
+                            setSelectedOpponent(""); // Clear any previous opponent selection
+                          }}
+                        >
+                          Lose
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Only show Target Value for points predictions */}
+                  {selectedStatType === "points" && (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg">Target Points</div>
+                      <input
+                        type="number"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                        placeholder="Enter target points"
+                        name="value"
+                        onChange={onInputChange}
+                        min={0}
+                      />
+                      <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
             {/* Question Preview Card */}
             <div className="flex flex-col gap-4 p-6 bg-[#111111] rounded-2xl border border-[#313131]">
               <div className="text-white text-xl font-medium">Your Question Preview</div>
               <div className="text-[#838587] text-lg">
-                Will ${data.feedName || "___"} {
-                  data.range === 0 ? "reach a per token price of $" : 
-                  data.range === 1 ? "reach a market cap of $" : "___"
-                }
-                <span className="text-[#07b3ff]">
-                  {data.value ? formatNumber(Number(data.value)) : "___"}
-                </span> by <span className="text-[#07b3ff]">{data.date || "___"}</span>?
+                {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
+                  selectedTeam ? (
+                    selectedStatType === "next_game" ? (
+                      predictionOutcome ? (
+                        `Will ${selectedTeam} ${predictionOutcome} their next game?`
+                      ) : (
+                        "Please select Win or Lose"
+                      )
+                    ) : selectedStatType === "points" ? (
+                      data.value ? (
+                        `Will ${selectedTeam} score at least ${data.value} points in their next game?`
+                      ) : (
+                        "Please enter a target points value"
+                      )
+                    ) : (
+                      "Please select a prediction type"
+                    )
+                  ) : (
+                    "Please complete the team selection above"
+                  )
+                ) : (
+                  `Will ${data.feedName || "___"} ${
+                    data.range === 0 ? "reach a per token price of $" : 
+                    data.range === 1 ? "reach a market cap of $" : "___"
+                  } ${
+                    data.value ? formatNumber(Number(data.value)) : "___"
+                  } by ${data.date || "___"}?`
+                )}
               </div>
             </div>
 
@@ -414,21 +723,23 @@ export default function Propose() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column */}
               <div className="flex flex-col gap-6">
-                {/* Token Ticker */}
-                <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Token Ticker</div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#07b3ff] text-lg">$</span>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                      placeholder="e.g. BTC, ETH, etc."
-                      name="feedName"
-                      onChange={onInputChange}
-                    />
+                {/* Token Ticker - Only show for coin markets */}
+                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Token Ticker</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#07b3ff] text-lg">$</span>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                        placeholder="e.g. BTC, ETH, etc."
+                        name="feedName"
+                        onChange={onInputChange}
+                      />
+                    </div>
+                    <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
                   </div>
-                  <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
-                </div>
+                )}
 
                 {/* Contract Address (if needed) */}
                 {marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data.map((field, index) => (
@@ -463,40 +774,48 @@ export default function Propose() {
 
               {/* Right Column */}
               <div className="flex flex-col gap-6">
-                {/* Prediction Type Selection */}
-                <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Prediction Type</div>
-                  <div className="flex gap-4">
-                    <button
-                      className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                        data.range === 0
-                          ? "bg-[#07b3ff] text-[#111111]"
-                          : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                      }`}
-                      onClick={() => setData(prev => ({ ...prev, range: 0 }))}
-                    >
-                      Price Target
-                    </button>
-                    <button
-                      className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                        data.range === 1
-                          ? "bg-[#07b3ff] text-[#111111]"
-                          : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                      }`}
-                      onClick={() => setData(prev => ({ ...prev, range: 1 }))}
-                    >
-                      Market Cap
-                    </button>
+                {/* Prediction Type Selection - Only show for coin markets */}
+                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Prediction Type</div>
+                    <div className="flex gap-4">
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          data.range === 0
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                        }`}
+                        onClick={() => setData(prev => ({ ...prev, range: 0 }))}
+                      >
+                        Price Target
+                      </button>
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          data.range === 1
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                        }`}
+                        onClick={() => setData(prev => ({ ...prev, range: 1 }))}
+                      >
+                        Market Cap
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Target Value */}
+                {/* Target Value - Show for both markets but with different labels */}
                 <div className="flex flex-col gap-2">
-                  <div className="text-[#838587] text-lg">Target Value</div>
+                  <div className="text-[#838587] text-lg">
+                    {marketField[marketFieldIndex].name === "Sports Prediction Market" 
+                      ? "Target Points" 
+                      : "Target Value"}
+                  </div>
                   <input
                     type="number"
                     className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                    placeholder="Enter target value"
+                    placeholder={marketField[marketFieldIndex].name === "Sports Prediction Market" 
+                      ? "Enter target points" 
+                      : "Enter target value"}
                     name="value"
                     onChange={onInputChange}
                     min={0}
