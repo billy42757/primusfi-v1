@@ -19,6 +19,8 @@ import { errorAlert, infoAlert, warningAlert } from "@/components/elements/Toast
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "@/providers/GlobalContext";
 import { ClipLoader } from "react-spinners";
+import { motion } from "framer-motion";
+import { GoQuestion } from "react-icons/go";
 
 // Add TypeScript interfaces
 interface SportsData {
@@ -376,9 +378,9 @@ export default function Propose() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Column: Image Upload */}
             <div className="flex flex-col gap-4 lg:w-1/4">
-              <div className="text-white text-xl font-medium">Step 1: Add a Market Image</div>
+              <div className="text-white text-xl font-semibold tracking-tight">Step 1: Add a Market Image</div>
               <div className="flex flex-col gap-2">
-                <label className="w-[auto] h-[200px] bg-[#111111] rounded-2xl cursor-pointer outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-center items-center gap-4 relative hover:bg-[#1a1a1a] transition-colors">
+                <label className="w-full h-[200px] bg-[#111111] rounded-2xl cursor-pointer border-2 border-dashed border-[#313131] flex flex-col justify-center items-center gap-4 relative hover:bg-[#181a1a] transition-colors shadow-lg">
                   {previewUrl && (
                     <img
                       src={previewUrl}
@@ -386,8 +388,8 @@ export default function Propose() {
                       className="absolute inset-0 w-full h-full object-cover rounded-2xl"
                     />
                   )}
-                  <FiUpload size={24} color="gray" />
-                  <div className="text-[#838587] text-sm font-medium text-center px-4">
+                  <FiUpload size={28} color="#07b3ff" />
+                  <div className="text-[#838587] text-base font-medium text-center px-4">
                     <input
                       type="file"
                       accept="image/*"
@@ -521,7 +523,62 @@ export default function Propose() {
           {/* Question Building Section */}
           <div className="flex flex-col gap-8">
             <div className="text-white text-xl font-medium">Step 4: Build Your Prediction Question</div>
-            
+
+            {/* Question Preview Card - always at the top */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="flex flex-col gap-4 p-8 bg-gradient-to-br from-[#181a1b] to-[#232a32] rounded-3xl border border-[#07b3ff]/30 shadow-xl relative overflow-hidden group"
+            >
+              {/* Rippling effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07b3ff]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="text-white text-2xl font-bold tracking-tight flex items-center gap-2"
+              >
+                <GoQuestion size={28} className="text-[#07b3ff]" />
+                Your Question Preview
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="text-[#07b3ff] text-xl font-semibold drop-shadow-lg"
+              >
+                {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
+                  selectedTeam ? (
+                    selectedStatType === "next_game" ? (
+                      predictionOutcome ? (
+                        `Will ${selectedTeam} ${predictionOutcome} their next game?`
+                      ) : (
+                        "Please select Win or Lose"
+                      )
+                    ) : selectedStatType === "points" ? (
+                      data.value ? (
+                        `Will ${selectedTeam} score at least ${data.value} points in their next game?`
+                      ) : (
+                        "Please enter a target points value"
+                      )
+                    ) : (
+                      "Please select a prediction type"
+                    )
+                  ) : (
+                    "Please complete the team selection above"
+                  )
+                ) : (
+                  `Will ${data.feedName ? `$${data.feedName}` : "___"} ${
+                    data.range === 0 ? "reach a per token price of $" :
+                    data.range === 1 ? "reach a market cap of $" : "___"
+                  } ${
+                    data.value ? formatNumber(Number(data.value)) : "___"
+                  } by ${data.date || "___"}?`
+                )}
+              </motion.div>
+            </motion.div>
+
             {/* Sports Details Selection (if sports market) */}
             {marketField[marketFieldIndex].name === "Sports Prediction Market" && selectedSport && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -559,179 +616,129 @@ export default function Propose() {
                     )}
                   </div>
 
-                  {/* Team Selection */}
-                  {selectedLeague && (
-                    <div className="relative">
-                      <div className="text-[#838587] text-lg mb-2">Select Team</div>
-                      <button 
-                        className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
-                        onClick={() => setTeamOpen(!teamOpen)}
-                      >
-                        {selectedTeam || "Select a team"}
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
-                          <path stroke="currentColor" d="m1 1 4 4 4-4" />
-                        </svg>
-                      </button>
-                      {teamOpen && (
-                        <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
-                          {sportsData[selectedSport].teams[selectedLeague].map((team) => (
-                            <div
-                              key={team}
-                              className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors text-white"
-                              onClick={() => {
-                                setSelectedTeam(team);
-                                setSelectedStatType("");
-                                setTeamOpen(false);
-                              }}
-                            >
-                              {team}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Team Selection (always show, but disabled if no league) */}
+                  <div className="relative">
+                    <div className="text-[#838587] text-lg mb-2">Select Team</div>
+                    <button 
+                      className={`w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center transition-colors ${!selectedLeague ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#1a1a1a] cursor-pointer'}`}
+                      onClick={() => selectedLeague && setTeamOpen(!teamOpen)}
+                      disabled={!selectedLeague}
+                    >
+                      {selectedTeam || "Select a team"}
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                      </svg>
+                    </button>
+                    {teamOpen && selectedLeague && (
+                      <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
+                        {sportsData[selectedSport].teams[selectedLeague].map((team) => (
+                          <div
+                            key={team}
+                            className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors text-white"
+                            onClick={() => {
+                              setSelectedTeam(team);
+                              setSelectedStatType("");
+                              setTeamOpen(false);
+                            }}
+                          >
+                            {team}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Right Column */}
                 <div className="flex flex-col gap-6">
-                  {/* Stat Type Selection */}
-                  {selectedTeam && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg">Prediction Type</div>
-                      <div className="flex gap-4">
-                        <button
-                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                            selectedStatType === "points"
-                              ? "bg-[#07b3ff] text-[#111111]"
-                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                          }`}
-                          onClick={() => {
-                            setSelectedStatType("points");
-                            setSelectedOpponent("");
-                          }}
-                        >
-                          Points
-                        </button>
-                        <button
-                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                            selectedStatType === "next_game"
-                              ? "bg-[#07b3ff] text-[#111111]"
-                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                          }`}
-                          onClick={() => {
-                            setSelectedStatType("next_game");
-                            setSelectedOpponent("");
-                          }}
-                        >
-                          Next Game
-                        </button>
-                      </div>
+                  {/* Stat Type Selection (always show, but disabled if no team) */}
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Prediction Type</div>
+                    <div className="flex gap-4">
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          selectedStatType === "points"
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : !selectedTeam ? 'opacity-50 cursor-not-allowed' : 'bg-[#111111] text-[#838587] hover:bg-[#1a1a1a] cursor-pointer'
+                        }`}
+                        onClick={() => selectedTeam && setSelectedStatType("points")}
+                        disabled={!selectedTeam}
+                      >
+                        Points
+                      </button>
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          selectedStatType === "next_game"
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : !selectedTeam ? 'opacity-50 cursor-not-allowed' : 'bg-[#111111] text-[#838587] hover:bg-[#1a1a1a] cursor-pointer'
+                        }`}
+                        onClick={() => selectedTeam && setSelectedStatType("next_game")}
+                        disabled={!selectedTeam}
+                      >
+                        Next Game
+                      </button>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Add Win/Lose Selection for next game predictions */}
-                  {selectedStatType === "next_game" && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg">Prediction</div>
-                      <div className="flex gap-4">
-                        <button
-                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                            predictionOutcome === "win"
-                              ? "bg-[#07b3ff] text-[#111111]"
-                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                          }`}
-                          onClick={() => {
-                            setPredictionOutcome("win");
-                            setSelectedOpponent(""); // Clear any previous opponent selection
-                          }}
-                        >
-                          Win
-                        </button>
-                        <button
-                          className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
-                            predictionOutcome === "lose"
-                              ? "bg-[#07b3ff] text-[#111111]"
-                              : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
-                          }`}
-                          onClick={() => {
-                            setPredictionOutcome("lose");
-                            setSelectedOpponent(""); // Clear any previous opponent selection
-                          }}
-                        >
-                          Lose
-                        </button>
-                      </div>
+                  {/* Win/Lose Selection (always show, but disabled if not next_game) */}
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Prediction</div>
+                    <div className="flex gap-4">
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          predictionOutcome === "win"
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : selectedStatType !== "next_game" ? 'opacity-50 cursor-not-allowed' : 'bg-[#111111] text-[#838587] hover:bg-[#1a1a1a] cursor-pointer'
+                        }`}
+                        onClick={() => selectedStatType === "next_game" && setPredictionOutcome("win")}
+                        disabled={selectedStatType !== "next_game"}
+                      >
+                        Win
+                      </button>
+                      <button
+                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                          predictionOutcome === "lose"
+                            ? "bg-[#07b3ff] text-[#111111]"
+                            : selectedStatType !== "next_game" ? 'opacity-50 cursor-not-allowed' : 'bg-[#111111] text-[#838587] hover:bg-[#1a1a1a] cursor-pointer'
+                        }`}
+                        onClick={() => selectedStatType === "next_game" && setPredictionOutcome("lose")}
+                        disabled={selectedStatType !== "next_game"}
+                      >
+                        Lose
+                      </button>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Only show Target Value for points predictions */}
-                  {selectedStatType === "points" && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg">Target Points</div>
-                      <input
-                        type="number"
-                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                        placeholder="Enter target points"
-                        name="value"
-                        onChange={onInputChange}
-                        min={0}
-                      />
-                      <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
-                    </div>
-                  )}
+                  {/* Target Value for points (always show, but disabled if not points) */}
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[#838587] text-lg">Target Points</div>
+                    <input
+                      type="number"
+                      className={`w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors ${selectedStatType !== "points" ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      placeholder="Enter target points"
+                      name="value"
+                      onChange={onInputChange}
+                      min={0}
+                      disabled={selectedStatType !== "points"}
+                    />
+                    <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
+                  </div>
                 </div>
               </div>
             )}
-            
-            {/* Question Preview Card */}
-            <div className="flex flex-col gap-4 p-6 bg-[#111111] rounded-2xl border border-[#313131]">
-              <div className="text-white text-xl font-medium">Your Question Preview</div>
-              <div className="text-[#838587] text-lg">
-                {marketField[marketFieldIndex].name === "Sports Prediction Market" ? (
-                  selectedTeam ? (
-                    selectedStatType === "next_game" ? (
-                      predictionOutcome ? (
-                        `Will ${selectedTeam} ${predictionOutcome} their next game?`
-                      ) : (
-                        "Please select Win or Lose"
-                      )
-                    ) : selectedStatType === "points" ? (
-                      data.value ? (
-                        `Will ${selectedTeam} score at least ${data.value} points in their next game?`
-                      ) : (
-                        "Please enter a target points value"
-                      )
-                    ) : (
-                      "Please select a prediction type"
-                    )
-                  ) : (
-                    "Please complete the team selection above"
-                  )
-                ) : (
-                  `Will ${data.feedName || "___"} ${
-                    data.range === 0 ? "reach a per token price of $" : 
-                    data.range === 1 ? "reach a market cap of $" : "___"
-                  } ${
-                    data.value ? formatNumber(Number(data.value)) : "___"
-                  } by ${data.date || "___"}?`
-                )}
-              </div>
-            </div>
 
             {/* Input Fields Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="flex flex-col gap-6">
+            {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Token Ticker - Only show for coin markets */}
-                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
+                <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
-                    <div className="text-[#838587] text-lg">Token Ticker</div>
+                    <div className="text-[#838587] text-lg font-semibold">Token Ticker</div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#07b3ff] text-lg">$</span>
+                      <span className="text-[#07b3ff] text-lg font-bold">$</span>
                       <input
                         type="text"
-                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
                         placeholder="e.g. BTC, ETH, etc."
                         name="feedName"
                         onChange={onInputChange}
@@ -739,63 +746,67 @@ export default function Propose() {
                     </div>
                     <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
                   </div>
-                )}
-
-                {/* Contract Address (if needed) */}
-                {marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data.map((field, index) => (
-                  field.name === "ca" && (
-                    <div key={index} className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg">Contract Address</div>
+                  {/* Contract Address for DexScreener */}
+                  {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name === "Dexscreener" && (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg font-semibold">Contract Address</div>
                       <input
                         type="text"
-                        id={field.name}
-                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
+                        id="ca"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
                         placeholder="Enter contract address"
-                        name={field.name}
+                        name="ca"
                         onChange={() => setNeededDataError(false)}
                       />
-                      <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please fill out this field</div>
+                      <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please enter a valid contract address</div>
                     </div>
-                  )
-                ))}
-
-                {/* Resolution Date - Only show for coin markets */}
-                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
-                  <div className="flex flex-col gap-2">
-                    <div className="text-[#838587] text-lg">Resolution Date</div>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                      name="date"
-                      onChange={onInputChange}
-                    />
-                    <div className={`text-red ${error.date !== "" ? "" : "invisible"}`}>*Invalid Resolution Date</div>
+                  )}
+                </div>
+                {/* Target Value & Resolution Date side by side */}
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-row gap-4">
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg font-semibold">Target Value</div>
+                      <input
+                        type="number"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
+                        placeholder="Enter target value"
+                        name="value"
+                        onChange={onInputChange}
+                        min={0}
+                      />
+                      <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="text-[#838587] text-lg font-semibold">Resolution Date</div>
+                      <input
+                        type="date"
+                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
+                        name="date"
+                        onChange={onInputChange}
+                      />
+                      <div className={`text-red ${error.date !== "" ? "" : "invisible"}`}>*Invalid Resolution Date</div>
+                    </div>
                   </div>
-                )}
-              </div>
-
-              {/* Right Column */}
-              <div className="flex flex-col gap-6">
-                {/* Prediction Type Selection - Only show for coin markets */}
-                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
-                  <div className="flex flex-col gap-2">
-                    <div className="text-[#838587] text-lg">Prediction Type</div>
+                  {/* Prediction Type Selection - Only show for coin markets */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    <div className="text-[#838587] text-lg font-semibold">Prediction Type</div>
                     <div className="flex gap-4">
                       <button
-                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                        className={`flex-1 px-4 py-3.5 text-lg font-semibold rounded-2xl border border-[#232a32] transition-colors ${
                           data.range === 0
-                            ? "bg-[#07b3ff] text-[#111111]"
-                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                            ? "bg-[#07b3ff] text-[#181a1b] border-[#07b3ff] shadow"
+                            : "bg-[#181a1b] text-[#838587] hover:bg-[#232a32]"
                         }`}
                         onClick={() => setData(prev => ({ ...prev, range: 0 }))}
                       >
                         Price Target
                       </button>
                       <button
-                        className={`flex-1 px-4 py-3.5 text-lg font-medium rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] transition-colors ${
+                        className={`flex-1 px-4 py-3.5 text-lg font-semibold rounded-2xl border border-[#232a32] transition-colors ${
                           data.range === 1
-                            ? "bg-[#07b3ff] text-[#111111]"
-                            : "bg-[#111111] text-[#838587] hover:bg-[#1a1a1a]"
+                            ? "bg-[#07b3ff] text-[#181a1b] border-[#07b3ff] shadow"
+                            : "bg-[#181a1b] text-[#838587] hover:bg-[#232a32]"
                         }`}
                         onClick={() => setData(prev => ({ ...prev, range: 1 }))}
                       >
@@ -803,32 +814,16 @@ export default function Propose() {
                       </button>
                     </div>
                   </div>
-                )}
-
-                {/* Target Value - Only show for coin markets */}
-                {marketField[marketFieldIndex].name !== "Sports Prediction Market" && (
-                  <div className="flex flex-col gap-2">
-                    <div className="text-[#838587] text-lg">Target Value</div>
-                    <input
-                      type="number"
-                      className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors"
-                      placeholder="Enter target value"
-                      name="value"
-                      onChange={onInputChange}
-                      min={0}
-                    />
-                    <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Description - Full width below the grid */}
             <div className="flex flex-col gap-2 mt-6">
-              <div className="text-[#838587] text-lg">Description</div>
+              <div className="text-[#838587] text-lg font-semibold">Description</div>
               <textarea
                 rows={6}
-                className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] hover:bg-[#1a1a1a] transition-colors resize-none"
+                className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all resize-none"
                 placeholder="Describe your prediction market..."
                 name="description"
                 onChange={onInputChange}
