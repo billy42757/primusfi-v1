@@ -208,15 +208,15 @@ const Market: React.FC = () => {
         }
       };
       if (pathname === "/fund") {
-        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=PENDING&marketField=0`);
+        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=PENDING&marketField=${selectedCategory === "Sports Prediction Market" ? 1 : 0}`);
       } else if (pathname === "/") {
-        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=0`);
+        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=${selectedCategory === "Sports Prediction Market" ? 1 : 0}`);
       }
 
       setTotal(marketData.data.total);
       formatMarketData(marketData.data.data);
     })()
-  }, [pathname])
+  }, [pathname, selectedCategory, currentPage])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
