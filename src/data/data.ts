@@ -27,7 +27,7 @@ export const marketCarouselItems = [
 
 export const categories = [
   { name: "Trending", active: true, icon: "Trending" as IconName, color: "#07b3ff" },
-  { name: "Sports", active: false, icon: "Sports" as IconName, color: "#838587" },
+  { name: "Sports Prediction Market", active: false, icon: "Sports" as IconName, color: "#838587" },
   { name: "Crypto", active: false, icon: "Crypto" as IconName, color: "#838587" },
   { name: "News", active: false, icon: "News" as IconName, color: "#838587" },
 ];
@@ -49,7 +49,7 @@ export const marketField = [
     name: "Coin Prediction Market",
     content: [
       {
-        api_name: "Coingecko",
+        api_name: "Coingecho",
         needed_data: [
           {
             name: "vs_currency",
@@ -78,5 +78,105 @@ export const marketField = [
       }
     ]
   },
-  
+  {
+    name: "Sports Prediction Market",
+    content: [
+      {
+        api_name: "NBA",
+        needed_data: [
+          {
+            name: "sport",
+            placeholder: "basketball"
+          },
+          {
+            name: "league",
+            placeholder: "NBA"
+          },
+          {
+            name: "team",
+            placeholder: "Lakers"
+          },
+          {
+            name: "stat_type",
+            placeholder: "points"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
+      },
+      {
+        api_name: "NFL",
+        needed_data: [
+          {
+            name: "sport",
+            placeholder: "football"
+          },
+          {
+            name: "league",
+            placeholder: "NFL"
+          },
+          {
+            name: "team",
+            placeholder: "Chiefs"
+          },
+          {
+            name: "stat_type",
+            placeholder: "passing_yards"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nfl/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
+      },
+      {
+        api_name: "MLB",
+        needed_data: [
+          {
+            name: "sport",
+            placeholder: "baseball"
+          },
+          {
+            name: "league",
+            placeholder: "MLB"
+          },
+          {
+            name: "team",
+            placeholder: "Yankees"
+          },
+          {
+            name: "stat_type",
+            placeholder: "hits"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/mlb/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
+      },
+      {
+        api_name: "Soccer",
+        needed_data: [
+          {
+            name: "sport",
+            placeholder: "soccer"
+          },
+          {
+            name: "league",
+            placeholder: "Premier League"
+          },
+          {
+            name: "team",
+            placeholder: "Manchester United"
+          },
+          {
+            name: "stat_type",
+            placeholder: "goals"
+          }
+        ],
+        task: null,
+        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/soccer/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
+      }
+    ]
+  }
 ]
