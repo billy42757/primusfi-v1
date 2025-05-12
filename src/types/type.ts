@@ -25,6 +25,10 @@ export interface MarketCarouselItemProps {
   bgImage: string;
   mainImage: string;
   overlayImage: string;
+  volume: string;
+  timeLeft: string;
+  yesPercentage: number;
+  comments: number;
 }
 
 // Define Prediction type for active predictions

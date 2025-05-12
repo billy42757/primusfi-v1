@@ -6,7 +6,6 @@ import { useGlobalContext } from "@/providers/GlobalContext";
 import { usePathname } from "next/navigation";
 import { RxHamburgerMenu } from "react-icons/rx";
 import Link from "next/link";
-import HeaderSideBar from "./HeaderSideBar";
 import {
   WalletMultiButton,
   WalletDisconnectButton,
@@ -15,9 +14,12 @@ import {
 import { useWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 
-const HeaderTop = () => {
+interface HeaderTopProps {
+  isCollapsed?: boolean;
+}
+
+const HeaderTop: React.FC<HeaderTopProps> = ({ isCollapsed }) => {
   const { activeTab, setActiveTab } = useGlobalContext(); // Use Global Context
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const wallet = useWallet();
   const pathname = usePathname();
 
@@ -25,7 +27,7 @@ const HeaderTop = () => {
     <div className="flex flex-col relative">
       <div className="self-stretch  px-[50px] py-4 inline-flex justify-between items-center w-full">
         <div className="flex gap-2 items-center md:hidden">
-          <div onClick={() => setIsCollapsed(!isCollapsed)} className="w-4 h-4 md:hidden relative overflow-hidden">
+          <div className="w-4 h-4 md:hidden relative overflow-hidden">
             <RxHamburgerMenu size={16} className="text-white" />
           </div>
           <div className="flex-1 md:hidden flex justify-start items-center gap-2">
@@ -164,9 +166,6 @@ const HeaderTop = () => {
             </span>
           </div>
         </div>
-      </div>
-      <div className={`absolute z-10 md:hidden ${isCollapsed ? "hidden" : ""}`}>
-        <HeaderSideBar isCancel={isCollapsed} setIsCanceled={setIsCollapsed} />
       </div>
     </div>
   );

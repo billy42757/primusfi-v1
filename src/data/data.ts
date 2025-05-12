@@ -5,24 +5,58 @@ export const marketCarouselItems = [
   {
     category: "Cryptocurrency",
     title: "Will Bitcoin hit 120k by the end of the month?",
-    bgImage: "/carousel_11.png",
-    mainImage: "/carousel_12.png",
-    overlayImage: "/carousel_13.png",
+    bgImage: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    mainImage: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
+    overlayImage: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+    volume: "$2.5M",
+    timeLeft: "3d 12h",
+    yesPercentage: 68,
+    comments: 245
   },
   {
     category: "Sports Betting",
     title: "Which NFL team will win the Super Bowl in 2025?",
-    bgImage: "/carousel_21.png",
-    mainImage: "/carousel_22.png",
-    overlayImage: "/carousel_23.png",
+    bgImage: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/National_Football_League_logo.svg/1200px-National_Football_League_logo.svg.png",
+    mainImage: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/National_Football_League_logo.svg/1200px-National_Football_League_logo.svg.png",
+    overlayImage: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/National_Football_League_logo.svg/1200px-National_Football_League_logo.svg.png",
+    volume: "$1.8M",
+    timeLeft: "5d 8h",
+    yesPercentage: 45,
+    comments: 189
+  },
+  {
+    category: "Crypto",
+    title: "Will Ethereum reach $5,000 before 2025?",
+    bgImage: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    mainImage: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+    overlayImage: "https://assets.coingecko.com/coins/images/279/thumb/ethereum.png",
+    volume: "$3.2M",
+    timeLeft: "2d 15h",
+    yesPercentage: 72,
+    comments: 312
+  },
+  {
+    category: "Crypto",
+    title: "Will Solana flip Ethereum in market cap?",
+    bgImage: "https://assets.coingecko.com/coins/images/4128/large/solana.png",
+    mainImage: "https://assets.coingecko.com/coins/images/4128/small/solana.png",
+    overlayImage: "https://assets.coingecko.com/coins/images/4128/thumb/solana.png",
+    volume: "$1.5M",
+    timeLeft: "4d 6h",
+    yesPercentage: 35,
+    comments: 178
   },
   {
     category: "Sports Betting",
-    title: "Which NFL team will win the Super Bowl in 2025?",
-    bgImage: "/carousel_21.png",
-    mainImage: "/carousel_22.png",
-    overlayImage: "/carousel_23.png",
-  },
+    title: "Will Manchester City win the Champions League?",
+    bgImage: "https://resources.premierleague.com/premierleague/badges/50/t43.png",
+    mainImage: "https://resources.premierleague.com/premierleague/badges/50/t43.png",
+    overlayImage: "https://resources.premierleague.com/premierleague/badges/50/t43.png",
+    volume: "$2.1M",
+    timeLeft: "6d 9h",
+    yesPercentage: 62,
+    comments: 234
+  }
 ];
 
 export const categories = [

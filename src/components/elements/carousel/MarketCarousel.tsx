@@ -1,6 +1,7 @@
 import { marketCarouselItems } from "@/data/data";
 import MarketCarouselItem from "./MarketCarouselItem";
 import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 const MarketCarousel = () => {
   return (
@@ -16,47 +17,32 @@ const MarketCarousel = () => {
         draggable
         focusOnSelect={false}
         infinite
-        itemClass=""
+        itemClass="px-2"
         keyBoardControl
         minimumTouchDrag={80}
-        partialVisible
         pauseOnHover
         renderArrowsWhenDisabled={false}
         renderButtonGroupOutside={false}
         renderDotsOutside={false}
         responsive={{
-          break: {
-            breakpoint: {
-              max: 3000,
-              min: 1600,
-            },
-            items: 1,
-            partialVisibilityGutter:500,
-          },
-          xl: {
-            breakpoint: {
-              max: 1600,
-              min: 1024,
-            },
-            items: 1,
-            partialVisibilityGutter:500,
-          },
-          mobile: {
-            breakpoint: {
-              max: 464,
-              min: 0,
-            },
-            items: 1,
-            partialVisibilityGutter: 30,
+          desktop: {
+            breakpoint: { max: 3000, min: 1024 },
+            items: 3,
+            slidesToSlide: 1,
+            partialVisibilityGutter: 40
           },
           tablet: {
-            breakpoint: {
-              max: 1024,
-              min: 464,
-            },
-            items: 1,
-            partialVisibilityGutter: 5,
+            breakpoint: { max: 1024, min: 464 },
+            items: 2,
+            slidesToSlide: 1,
+            partialVisibilityGutter: 30
           },
+          mobile: {
+            breakpoint: { max: 464, min: 0 },
+            items: 1,
+            slidesToSlide: 1,
+            partialVisibilityGutter: 20
+          }
         }}
         rewind={false}
         rewindWithAnimation={false}

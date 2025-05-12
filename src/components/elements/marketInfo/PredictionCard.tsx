@@ -14,6 +14,7 @@ import { errorAlert, infoAlert } from "../ToastGroup";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { MarketDataType } from "@/types/type";
+import { motion } from "framer-motion";
 
 // Define types for the props
 interface PredictionCardProps {
@@ -74,7 +75,13 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
     }
   }
   return (
-    <div className="lg:p-6 p-4 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] shadow-xl/20 outline-[#313131] inline-flex flex-col justify-start items-start lg:gap-6 gap-4">
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.025, boxShadow: "0 8px 32px 0 rgba(7,179,255,0.10)" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="lg:p-6 p-4 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] shadow-xl/20 outline-[#313131] inline-flex flex-col justify-start items-start lg:gap-6 gap-4"
+    >
       <div className="self-stretch flex flex-col justify-start items-start gap-2">
         <div className="self-stretch inline-flex justify-start items-center gap-2">
           <div className="flex-1 justify-start text-[#07b3ff] lg:text-base text-xs font-semibold font-Inter leading-normal">
@@ -128,10 +135,30 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
 
       {/* Yes/No Buttons */}
       <div className="self-stretch inline-flex justify-start items-center gap-3">
-        <VoteButton onClick={() => onVote(true, markets[index].tokenA)} label="Yes" color="#3fd145" icon="yes" />
-        <VoteButton onClick={() => onVote(false, markets[index].tokenB)} label="No" color="#ff6464" icon="no" />
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-1 px-4 py-2.5 bg-[#223a25] outline outline-1 outline-[#3fd145] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
+          onClick={() => onVote(true, markets[index].tokenA)}
+        >
+          <span className="w-5 h-5 flex items-center justify-center">
+            <Icon name="yes" color="#3fd145" />
+          </span>
+          <span className="text-[#3fd145] text-lg font-bold font-satoshi leading-7">Yes</span>
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-1 px-4 py-2.5 bg-[#3a2222] outline outline-1 outline-[#ff6464] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
+          onClick={() => onVote(false, markets[index].tokenB)}
+        >
+          <span className="w-5 h-5 flex items-center justify-center">
+            <Icon name="no" color="#ff6464" />
+          </span>
+          <span className="text-[#ff6464] text-lg font-bold font-satoshi leading-7">No</span>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 
-interface SidebarItemProps {
-  title: string;
-  isActive: boolean;
-  onClick: () => void;
+interface AboutSubSidebarProps {
+  selectedIndex: number;
+  setSelectedIndex: (index: number) => void;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ title, isActive, onClick }) => (
+const SidebarItem: React.FC<{ title: string; isActive: boolean; onClick: () => void }> = ({ title, isActive, onClick }) => (
   <div
     onClick={onClick}
-    className={`self-stretch pl-${isActive ? "4" : "7"} py-2 border-l cursor-pointer transition-colors duration-200 ${
-      isActive ? "border-[#07b3ff] text-[#07b3ff]" : "border-[#838587] text-[#838587] hover:border-[#07b3ff] hover:text-[#07b3ff]"
-    } inline-flex justify-start items-center gap-2.5`}
+    className={`self-stretch px-3 py-2 border-l-4 cursor-pointer transition-colors duration-200 rounded-lg md:rounded-none ${
+      isActive
+        ? "border-[#07b3ff] bg-[#232a32] text-[#07b3ff] font-bold"
+        : "border-transparent text-[#838587] hover:border-[#07b3ff] hover:text-[#07b3ff]"
+    } inline-flex justify-start items-center`}
   >
     <div className="flex-1 justify-start text-base font-normal font-['Rubik'] leading-normal">
       {title}
@@ -19,25 +20,26 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ title, isActive, onClick }) =
   </div>
 );
 
-const AboutSubSidebar: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(0);
-
+const AboutSubSidebar: React.FC<AboutSubSidebarProps> = ({ selectedIndex, setSelectedIndex }) => {
   const items = [
-    "ChainTrend: Democratizing Finance Through Innovation",
-    "An Unprecedented Asset Class: Event Contracts",
-    "Leveling the Playing Field",
-    "A Marketplace of Ideas",
-    "The Power of Yes & No",
-    "Our Commitment",
+    "What is Speculape?",
+    "How do prediction markets work?",
+    "Is Speculape safe and secure?",
+    "How do I participate?",
+    "What can I predict on Speculape?",
+    "How does Speculape make money?",
   ];
 
   return (
-    <div className="self-stretch hidden lg:flex px-10 py-6 border-l border-[#313131]  justify-start items-start gap-2.5">
-      <div className="w-56 inline-flex flex-col justify-start items-start">
-        {items.map((title, index) => (
-          <SidebarItem key={index} title={title} isActive={index === activeIndex} onClick={() => setActiveIndex(index)} />
-        ))}
-      </div>
+    <div className="w-full md:w-auto flex flex-row md:flex-col items-start md:items-stretch gap-1 md:gap-2.5 px-2 md:px-0 py-2 md:py-0 bg-transparent">
+      {items.map((title, index) => (
+        <SidebarItem
+          key={index}
+          title={title}
+          isActive={index === selectedIndex}
+          onClick={() => setSelectedIndex(index)}
+        />
+      ))}
     </div>
   );
 };

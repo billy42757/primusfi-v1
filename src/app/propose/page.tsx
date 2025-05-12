@@ -35,6 +35,13 @@ interface SportsDataType {
   [key: string]: SportsData;
 }
 
+// Add CoinGecko token list types
+interface CoinGeckoToken {
+  id: string;
+  symbol: string;
+  name: string;
+}
+
 // Add number formatting function
 const formatNumber = (num: number): string => {
   if (num >= 1e12) return (num / 1e12).toFixed(1) + 'T';
@@ -160,6 +167,27 @@ export default function Propose() {
     creator: "",
     description: ""
   });
+
+  // CoinGecko token dropdown state
+  const [tokenList, setTokenList] = useState<CoinGeckoToken[]>([]);
+  const [tokenSearch, setTokenSearch] = useState("");
+  const [selectedToken, setSelectedToken] = useState<CoinGeckoToken | null>(null);
+  const [tokenDropdownOpen, setTokenDropdownOpen] = useState(false);
+
+  // Fetch token list from CoinGecko
+  useEffect(() => {
+    async function fetchTokens() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/coins/list");
+        const data = await res.json();
+        setTokenList(data);
+      } catch (e) {
+        setTokenList([]);
+      }
+    }
+    fetchTokens();
+  }, []);
+
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 
     if (event.target.files && event.target.files.length > 0) {
@@ -734,31 +762,63 @@ export default function Propose() {
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
                     <div className="text-[#838587] text-lg font-semibold">Token Ticker</div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#07b3ff] text-lg font-bold">$</span>
+                    <div className="relative">
                       <input
                         type="text"
                         className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
-                        placeholder="e.g. BTC, ETH, etc."
-                        name="feedName"
-                        onChange={onInputChange}
+                        placeholder="Search for a token (e.g. BTC, ETH, etc.)"
+                        value={tokenSearch}
+                        onChange={e => {
+                          setTokenSearch(e.target.value);
+                          setTokenDropdownOpen(true);
+                        }}
+                        onFocus={() => setTokenDropdownOpen(true)}
                       />
+                      {tokenDropdownOpen && (
+                        <div className="absolute z-10 w-full mt-2 max-h-60 overflow-y-auto bg-[#181a1b] rounded-2xl border border-[#232a32] shadow-lg">
+                          {tokenList
+                            .filter(token =>
+                              token.symbol.toLowerCase().includes(tokenSearch.toLowerCase()) ||
+                              token.name.toLowerCase().includes(tokenSearch.toLowerCase())
+                            )
+                            .slice(0, 20)
+                            .map(token => (
+                              <div
+                                key={token.id}
+                                className="px-4 py-3 hover:bg-[#232a32] cursor-pointer text-white"
+                                onClick={() => {
+                                  setSelectedToken(token);
+                                  setTokenSearch(token.symbol.toUpperCase());
+                                  setTokenDropdownOpen(false);
+                                  setData(prev => ({ ...prev, feedName: token.symbol.toUpperCase() }));
+                                }}
+                              >
+                                <span className="font-bold">{token.symbol.toUpperCase()}</span> <span className="text-[#838587]">{token.name}</span>
+                              </div>
+                            ))}
+                          {tokenList.filter(token =>
+                            token.symbol.toLowerCase().includes(tokenSearch.toLowerCase()) ||
+                            token.name.toLowerCase().includes(tokenSearch.toLowerCase())
+                          ).length === 0 && (
+                            <div className="px-4 py-3 text-[#838587]">No tokens found</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
                   </div>
-                  {/* Contract Address for DexScreener */}
-                  {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name === "Dexscreener" && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-[#838587] text-lg font-semibold">Contract Address</div>
-                      <input
-                        type="text"
-                        id="ca"
-                        className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
-                        placeholder="Enter contract address"
-                        name="ca"
-                        onChange={() => setNeededDataError(false)}
-                      />
-                      <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please enter a valid contract address</div>
+                  {/* Token Verification Link and ID */}
+                  {selectedToken && (
+                    <div className="flex flex-col gap-1 mt-2">
+                      <a
+                        href={`https://www.coingecko.com/en/coins/${selectedToken.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#07b3ff] underline text-base font-medium hover:text-[#3fd145] transition-colors"
+                      >
+                        View on CoinGecko
+                      </a>
+                      <div className="text-[#838587] text-xs">CoinGecko ID: <span className="font-mono">{selectedToken.id}</span></div>
                     </div>
                   )}
                 </div>
