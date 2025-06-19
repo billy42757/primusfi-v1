@@ -96,8 +96,8 @@ export const marketField = [
             placeholder: "solana"
           }
         ],
-        task: null,
-        api_link: (...args: string[]) => `https://api.coingecko.com/api/v3/simple/price?ids=${args[0]}&vs_currencies=usd`,
+        task: (index: number, rang: number) => "null",
+        api_link: (...args: any[]) => args[1]?`https://api.coingecko.com/api/v3/coins/markets?ids=${args[0]}&vs_currency=usd`:`https://api.coingecko.com/api/v3/simple/price?ids=${args[0]}&vs_currencies=usd`,
         // mc_link: (...args: string[]) => `https://api.coingecko.com/api/v3/coins/markets?ids=${args[0]}&vs_currency=usd`,
         market_keyword: (...args: string[]) => `id: ${args[0]}, vs_currency: usd`,
       },
@@ -109,8 +109,8 @@ export const marketField = [
             placeholder: "EGfWrQjqEexyPcZNUFGU8LypCikg34q2vqtk7hwBzWdS"
           }
         ],
-        task: "$.pairs[0].priceUsd",
-        api_link: (...args: string[]) => `https://api.dexscreener.com/latest/dex/tokens/${args[0]}`,
+        task: (index: number, rang: number) =>  rang?`$.pairs[${index}].marketCap` : `$.pairs[${index}].priceUsd`,
+        api_link: (...args: any[]) => `https://api.dexscreener.com/latest/dex/tokens/${args[0]}`,
         // mc_link: (...args: string[]) => `https://api.dexscreener.com/latest/dex/tokens/${args[0]}`,
         market_keyword: (...args: string[]) => `token: ${args[0]}`,
       }
@@ -139,8 +139,8 @@ export const marketField = [
             placeholder: "points"
           }
         ],
-        task: null,
-        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        task: (index: number, rang: number) => "null",
+        api_link: (...args: any[]) => `https://api.sportsdata.io/v3/nba/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
         market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
       },
       {
@@ -163,8 +163,8 @@ export const marketField = [
             placeholder: "passing_yards"
           }
         ],
-        task: null,
-        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/nfl/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        task: (index: number, rang: number) => "null",
+        api_link: (...args: any[]) => `https://api.sportsdata.io/v3/nfl/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
         market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
       },
       {
@@ -187,8 +187,8 @@ export const marketField = [
             placeholder: "hits"
           }
         ],
-        task: null,
-        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/mlb/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        task: (index: number, rang: number) => "null",
+        api_link: (...args: any[]) => `https://api.sportsdata.io/v3/mlb/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
         market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
       },
       {
@@ -211,8 +211,8 @@ export const marketField = [
             placeholder: "goals"
           }
         ],
-        task: null,
-        api_link: (...args: string[]) => `https://api.sportsdata.io/v3/soccer/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
+        task: (index: number, rang: number) => "null",
+        api_link: (...args: any[]) => `https://api.sportsdata.io/v3/soccer/stats/json/PlayerGameStatsByDate/${args[0]}/${args[1]}`,
         market_keyword: (...args: string[]) => `sport: ${args[0]}, league: ${args[1]}, team: ${args[2]}, stat: ${args[3]}`,
       }
     ]

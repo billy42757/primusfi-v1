@@ -304,13 +304,14 @@ export default function Propose() {
         } else {
           params.push(data.feedName);
         }
+        params.push(data.range);
       }
 
       const api_link = market_detail.api_link(...params);
       console.log("api_link:", api_link);
       
       const response = await axios.get(api_link);
-      const task = market_detail.task ? market_detail.task : findJsonPathsForKey(JSON.stringify(response.data), "usd")[0];
+      const task = market_detail.task(dexIndex, data.range) !== "null" ? market_detail.task(dexIndex, data.range) : findJsonPathsForKey(JSON.stringify(response.data), data.range?"market_cap" : "usd")[0];
       console.log("task:", task);
 
       data.dataLink = api_link;
@@ -323,7 +324,7 @@ export default function Propose() {
       if (marketField[marketFieldIndex].name === "Sports Prediction Market") {
         data.question = `Will ${selectedTeam} ${selectedStatType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} reach ${data.value} by ${data.date}?`;
       } else {
-        data.question = `Will ${elipsKey(data.feedName)} reach a per token price of $ ${data.value} by ${data.date}?`
+        data.question = data.range? `Will ${elipsKey(data.feedName)} reach a market cap of $ ${data.value} by ${data.date}?` : `Will ${elipsKey(data.feedName)} reach a per token price of $ ${data.value} by ${data.date}?`
       }
 
       const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
