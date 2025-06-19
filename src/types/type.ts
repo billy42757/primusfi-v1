@@ -56,22 +56,14 @@ export interface PendingData {
 export interface ProposeType {
   marketField: number;
   imageUrl: string;
+  range: number,
   apiType: number;
   question: string;
   feedName: string;
   dataLink: string;
   date: string;
   task: string;
-  ATokenName: string;
-  BTokenName: string;
-  ATokenSymbol: string;
-  BTokenSymbol: string;
-  ATokenURL: string;
-  BTokenURL: string;
-  TokenAmount: number;
-  TokenPrice: number,
   value: number,
-  range: number,
   creator: string,
   description: string
 }
@@ -87,17 +79,8 @@ export type GlobalSettingType = {
   
 export type CreateMarketType = {
     marketID: String;
-    tokenAmount: number;
-    tokenPrice: number;
-    nameA: String;
-    nameB: String;
-    symbolA: String;
-    symbolB: String;
-    urlA: String;
-    urlB: String;
     date: String;
     value: number;
-    range: number;
     feed: Keypair;
     wallet: WalletContextState,
     anchorWallet: AnchorWallet,

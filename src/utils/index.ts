@@ -1,3 +1,4 @@
+import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
 
 const PINATA_API_KEY = "6ab09644822193eed05d";
@@ -59,7 +60,6 @@ export function findJsonPathsForKey(jsonStr: string, key: string): string[] {
     }
 }
 
-
 export const getCountDown = (targetDateStr: string) => {
 
   const targetDate = new Date(targetDateStr);
@@ -79,4 +79,18 @@ export const getCountDown = (targetDateStr: string) => {
   const seconds = Math.floor(diff / 1000);
 
   return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+}
+
+export const elipsKey = (content: string) => {
+  return content.length > 10 ? content.slice(0, 4) + "..." + content.slice(content.length - 4, content.length) : content
+}
+
+export const isPublickey = (addr: string) => {
+  try {
+    const key = new PublicKey(addr);
+    return PublicKey.isOnCurve(key.toBytes());
+  } catch (error) {
+    console.log("Invalid Address:", error);
+    return false
+  }
 }

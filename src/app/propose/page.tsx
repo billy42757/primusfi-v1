@@ -1,26 +1,20 @@
 "use client";
 
-import Icon from "@/components/elements/Icons";
-import { pendingPredictions } from "@/components/elements/marketInfo/Market";
-import PendingCard from "@/components/elements/marketInfo/PendingCard";
-import Pagination from "@/components/elements/pagination/Pagination";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiUpload } from "react-icons/fi";
-import { IoSearchOutline } from "react-icons/io5";
-import { ranges } from "@/data/data";
 import { ProposeType } from "@/types/type";
 import axios from "axios";
 import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
 import { marketField } from "@/data/data";
-import { findJsonPathsForKey, uploadToPinata } from "@/utils";
+import { elipsKey, findJsonPathsForKey, isPublickey, uploadToPinata } from "@/utils";
 import { createMarket } from "@/components/prediction_market_sdk";
 import { customizeFeed } from "@/components/oracle_service/simulateFeed";
 import { errorAlert, infoAlert, warningAlert } from "@/components/elements/ToastGroup";
 import { useRouter } from "next/navigation";
-import { useGlobalContext } from "@/providers/GlobalContext";
 import { ClipLoader } from "react-spinners";
 import { motion } from "framer-motion";
 import { GoQuestion } from "react-icons/go";
+import Link from "next/link";
 
 // Add TypeScript interfaces
 interface SportsData {
@@ -52,7 +46,6 @@ const formatNumber = (num: number): string => {
 };
 
 export default function Propose() {
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [active, setActive] = useState(true);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -61,13 +54,11 @@ export default function Propose() {
   const [marketFieldIndex, setMarketFieldIndex] = useState(0);
   const [marketFieldContentIndex, setMarketFieldContentIndex] = useState(0);
   const [marketFieldOpen, setMarketFieldOpen] = useState(false);
+  const [selectDex, setSelectDex] = useState(false);
   const [needDataError, setNeededDataError] = useState(false);
-  const [range, setRange] = useState(0);
-  const [rangeOpen, setRangeOpen] = useState(false);
   const [marketFieldContentOpen, setMarketFieldContentOpen] = useState(false);
   const [isUploading, setUploading] = useState(false);
   const router = useRouter()
-  const { markets } = useGlobalContext();
   const anchorWallet = useAnchorWallet();
 
   // Add new state for sports selection
@@ -75,12 +66,10 @@ export default function Propose() {
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
   const [selectedStatType, setSelectedStatType] = useState("");
-  const [selectedOpponent, setSelectedOpponent] = useState("");
   const [sportOpen, setSportOpen] = useState(false);
   const [leagueOpen, setLeagueOpen] = useState(false);
   const [teamOpen, setTeamOpen] = useState(false);
-  const [statTypeOpen, setStatTypeOpen] = useState(false);
-  const [opponentOpen, setOpponentOpen] = useState(false);
+  const [market, setMarket] = useState([]);
 
   // Add new state for win/lose prediction
   const [predictionOutcome, setPredictionOutcome] = useState<"win" | "lose" | "">("");
@@ -120,26 +109,12 @@ export default function Propose() {
     }
   };
 
-  // useEffect(() => {
-  //   document.getElementsByTagName("body")[0].addEventListener("click", (e) => {
-  //     setMarketFieldOpen(false);
-  //     setMarketFieldContentOpen(false);
-  //   })
-  // });
   const [error, setError] = useState({
     question: "",
     feedName: "",
     imageUrl: "",
     dataLink: "",
     date: "",
-    ATokenName: "",
-    BTokenName: "",
-    ATokenSymbol: "",
-    BTokenSymbol: "",
-    ATokenURL: "",
-    BTokenURL: "",
-    TokenAmount: "",
-    TokenPrice: "",
     value: "",
     checkbox: "",
     description: ""
@@ -148,22 +123,14 @@ export default function Propose() {
     // Provide default values based on the ProposeType structure
     marketField: marketFieldIndex,
     apiType: marketFieldContentIndex,
+    range: 0,
     question: "",
     imageUrl: "",
     feedName: "",
     dataLink: "",
     date: "",
     task: "",
-    ATokenName: "",
-    BTokenName: "",
-    ATokenSymbol: "",
-    BTokenSymbol: "",
-    ATokenURL: "",
-    BTokenURL: "",
-    TokenAmount: 0,
-    TokenPrice: 0,
     value: 0,
-    range: 0,
     creator: "",
     description: ""
   });
@@ -171,6 +138,7 @@ export default function Propose() {
   // CoinGecko token dropdown state
   const [tokenList, setTokenList] = useState<CoinGeckoToken[]>([]);
   const [tokenSearch, setTokenSearch] = useState("");
+  const [dexIndex, setDexIndex] = useState(0);
   const [selectedToken, setSelectedToken] = useState<CoinGeckoToken | null>(null);
   const [tokenDropdownOpen, setTokenDropdownOpen] = useState(false);
 
@@ -223,10 +191,6 @@ export default function Propose() {
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
     setError((prevError) => ({
@@ -238,7 +202,7 @@ export default function Propose() {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.preventDefault();
     const { name, value } = e.target as HTMLInputElement;
-
+    
     setData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -248,6 +212,56 @@ export default function Propose() {
       ...prevError,
       [name]: "",
     }));
+  }
+
+  const updateTokenTicker = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>{
+    setTokenSearch(e.target.value);
+    setNeededDataError(false);
+    if (marketField[marketFieldIndex].content[marketFieldContentIndex].api_name === "Coingecho" ) {
+      setTokenDropdownOpen(true);
+    } else {
+      // fetch market List 
+      const isPubkey = isPublickey(e.target.value);
+      console.log(isPubkey);
+      
+      if (isPubkey) {
+        setDexIndex(0);
+        const result = await axios.get(marketField[marketFieldIndex].content[marketFieldContentIndex].api_link(e.target.value));
+        if (result.data.pairs.length > 0) {
+          const marketList = result.data.pairs.map((val:any) => val.dexId);
+          console.log("marketList:", marketList);
+          setMarket(marketList);
+        }
+      } else {
+        setMarket([]);
+      }
+      setTokenDropdownOpen(false);
+      setData((prevData) => ({
+        ...prevData,
+        feedName: e.target.value,
+      }));
+    }
+  }
+
+  const chnageDataSource = (index: number) => {
+    setMarketFieldContentIndex(index);
+    setMarketFieldContentOpen(false);
+    setData({
+      // Provide default values based on the ProposeType structure
+      marketField: marketFieldIndex,
+      apiType: marketFieldContentIndex,
+      range: 0,
+      question: "",
+      imageUrl: "",
+      feedName: "",
+      dataLink: "",
+      date: "",
+      task: "",
+      value: 0,
+      creator: "",
+      description: ""
+    });
+    setTokenSearch("");
   }
 
   const onSubmit = async () => {
@@ -273,56 +287,56 @@ export default function Propose() {
         params.push(selectedSport, selectedLeague, selectedTeam, selectedStatType);
       } else {
         // Handle other market types
-        for (let index = 0; index < need_key.length; index++) {
-          const element = need_key[index];
-          const elem_val = document.getElementById(element.name) as HTMLInputElement;
-
-          if (elem_val.value === "") {
-            setNeededDataError(true);
-            setActive(true);
+        const element = need_key[0];
+        const elem_val = document.getElementById(element.name) as HTMLInputElement;
+        if (elem_val.value === "") {
+          setNeededDataError(true);
+          setActive(true);
+          return
+        }
+        if (marketField[marketFieldIndex].name === "Coingecho") {
+          if (!selectedToken) {
+            errorAlert("Invalid Token Ticker!");
             return
           }
-          params.push(elem_val.value)
+          
+          params.push(selectedToken.id);
+        } else {
+          params.push(data.feedName);
         }
       }
 
       const api_link = market_detail.api_link(...params);
+      console.log("api_link:", api_link);
+      
       const response = await axios.get(api_link);
-      const task = market_detail.task ? market_detail.task : findJsonPathsForKey(JSON.stringify(response.data), params[0])[0];
+      const task = market_detail.task ? market_detail.task : findJsonPathsForKey(JSON.stringify(response.data), "usd")[0];
+      console.log("task:", task);
 
       data.dataLink = api_link;
       data.task = task;
       data.creator = wallet.publicKey.toBase58() || "";
-      data.range = range;
       data.marketField = marketFieldIndex;
       data.apiType = marketFieldContentIndex;
 
       // Update question based on market type
       if (marketField[marketFieldIndex].name === "Sports Prediction Market") {
         data.question = `Will ${selectedTeam} ${selectedStatType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} reach ${data.value} by ${data.date}?`;
+      } else {
+        data.question = `Will ${elipsKey(data.feedName)} reach a per token price of $ ${data.value} by ${data.date}?`
       }
-
-      console.log("data:", data);
 
       const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
       const market_id = res.data.result;
 
       const cluster = process.env.CLUSTER === "Mainnet" ? "Mainnet" : "Devnet";
       const feed_result = await customizeFeed({ url: data.dataLink, task, name: data.feedName, cluster, wallet: anchorWallet });
+      console.log("feed_result:", feed_result);
 
       const create_result = await createMarket({
         marketID: market_id,
-        tokenAmount: data.TokenAmount,
-        tokenPrice: data.TokenPrice,
-        nameA: data.ATokenName,
-        nameB: data.BTokenName,
-        symbolA: data.ATokenSymbol,
-        symbolB: data.BTokenSymbol,
-        urlA: data.ATokenURL,
-        urlB: data.BTokenURL,
         date: data.date,
         value: data.value,
-        range: data.range,
         feed: feed_result.feedKeypair!,
         wallet,
         anchorWallet
@@ -354,21 +368,13 @@ export default function Propose() {
             dataLink: error.response?.data.dataLink || "",
             imageUrl: error.response?.data.imageUrl || "",
             date: error.response?.data.date || "",
-            ATokenName: error.response?.data.ATokenName || "",
-            BTokenName: error.response?.data.BTokenName || "",
-            ATokenSymbol: error.response?.data.ATokenSymbol || "",
-            BTokenSymbol: error.response?.data.BTokenSymbol || "",
-            ATokenURL: error.response?.data.ATokenURL || "",
-            BTokenURL: error.response?.data.BTokenURL || "",
-            TokenAmount: error.response?.data.TokenAmount || "",
-            TokenPrice: error.response?.data.TokenPrice || "",
             checkbox: isChecked ? "" : "Please accept the terms and conditions",
             value: error.response?.data.value || "",
             description: error.response?.data.description || "",
           });
 
         } else if (error.response?.status === 500) {
-          console.log("Axios Error:", error.response?.data);
+          console.log("Axios Error:", error.response?.data); 
         }
       } else {
         console.error('Unexpected error:', error);
@@ -435,7 +441,7 @@ export default function Propose() {
             {/* Right Column: Category and Data Source */}
             <div className="flex flex-col gap-8 lg:w-3/4">
               {/* Market Category Selection */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 relative">
                 <div className="text-white text-xl font-medium">Step 2: Choose Your Market Category</div>
                 <button 
                   className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
@@ -446,12 +452,11 @@ export default function Propose() {
                     <path stroke="currentColor" d="m1 1 4 4 4-4" />
                   </svg>
                 </button>
-
                 {marketFieldOpen && (
-                  <div className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131]">
+                  <div id="market_catagory" className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] absolute left-0 bottom-[-100px] z-10 outline-[#313131]">
                     {marketField.map((field, index) => (
                       <div
-                        key={index}
+                        key={"market-field-" + index }
                         className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors text-white"
                         onClick={() => {
                           setMarketFieldIndex(index);
@@ -480,7 +485,7 @@ export default function Propose() {
                   
                   {/* Sport Selection */}
                   <div className="relative">
-                    <div className="text-[#838587] text-lg mb-2">Select Sport</div>
+                    {/* <div className="text-[#838587] text-lg mb-2">Select Sport</div> */}
                     <button 
                       className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
                       onClick={() => setSportOpen(!sportOpen)}
@@ -491,7 +496,7 @@ export default function Propose() {
                       </svg>
                     </button>
                     {sportOpen && (
-                      <div className="absolute z-10 w-full mt-2 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
+                      <div className="absolute z-10 w-full mt-1 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] shadow-lg">
                         {Object.keys(sportsData).map((sport) => (
                           <div
                             key={sport}
@@ -512,28 +517,25 @@ export default function Propose() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 relative">
                   <div className="text-white text-xl font-medium">Step 3: Select Your Data Source</div>
                   <button 
                     className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
                     onClick={() => setMarketFieldContentOpen(!marketFieldContentOpen)}
                   >
                     {marketField[marketFieldIndex].content[marketFieldContentIndex].api_name}
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">``
                       <path stroke="currentColor" d="m1 1 4 4 4-4" />
                     </svg>
                   </button>
 
                   {marketFieldContentOpen && (
-                    <div className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131]">
+                    <div className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] absolute left-0 bottom-[-100px] z-10 outline-[#313131]">
                       {marketField[marketFieldIndex].content.map((field, index) => (
                         <div
                           key={index}
                           className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors text-white"
-                          onClick={() => {
-                            setMarketFieldContentIndex(index);
-                            setMarketFieldContentOpen(false);
-                          }}
+                          onClick={() => chnageDataSource(index)}
                         >
                           {field.api_name}
                         </div>
@@ -597,7 +599,7 @@ export default function Propose() {
                     "Please complete the team selection above"
                   )
                 ) : (
-                  `Will ${data.feedName ? `$${data.feedName}` : "___"} ${
+                  `Will ${data.feedName ? `${elipsKey(data.feedName) }` : "___"} ${
                     data.range === 0 ? "reach a per token price of $" :
                     data.range === 1 ? "reach a market cap of $" : "___"
                   } ${
@@ -766,13 +768,11 @@ export default function Propose() {
                       <input
                         type="text"
                         className="w-full px-4 py-3.5 text-[#838587] text-lg font-medium bg-[#181a1b] rounded-2xl border border-[#232a32] focus:border-[#07b3ff] outline-none transition-all"
-                        placeholder="Search for a token (e.g. BTC, ETH, etc.)"
+                        placeholder={`${marketField[marketFieldIndex].content[marketFieldContentIndex].api_name === "Coingecho"? `Search for a token (e.g. BTC, ETH, etc.)`: `2bvTCZrV2wm5sDj2KENEbERzAXo3w499cVB9wDbXbonk`}`}
                         value={tokenSearch}
-                        onChange={e => {
-                          setTokenSearch(e.target.value);
-                          setTokenDropdownOpen(true);
-                        }}
-                        onFocus={() => setTokenDropdownOpen(true)}
+                        id={marketField[marketFieldIndex].content[marketFieldContentIndex].needed_data[0].name}
+                        onChange={updateTokenTicker}
+                        // onFocus={() => setTokenDropdownOpen(true)}
                       />
                       {tokenDropdownOpen && (
                         <div className="absolute z-10 w-full mt-2 max-h-60 overflow-y-auto bg-[#181a1b] rounded-2xl border border-[#232a32] shadow-lg">
@@ -805,22 +805,57 @@ export default function Propose() {
                         </div>
                       )}
                     </div>
-                    <div className={`text-red ${error.feedName !== "" ? "" : "invisible"}`}>*Please enter a token ticker</div>
+                    <div className={`text-red ${needDataError ? "" : "invisible"}`}>*Please enter a token ticker</div>
                   </div>
                   {/* Token Verification Link and ID */}
                   {selectedToken && (
                     <div className="flex flex-col gap-1 mt-2">
-                      <a
+                      <Link
                         href={`https://www.coingecko.com/en/coins/${selectedToken.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#07b3ff] underline text-base font-medium hover:text-[#3fd145] transition-colors"
+                        className="text-[#07b3ff] underline text-base font-medium hover:text-[#3fd145] transition-colors float-left"
                       >
                         View on CoinGecko
-                      </a>
+                      </Link>
                       <div className="text-[#838587] text-xs">CoinGecko ID: <span className="font-mono">{selectedToken.id}</span></div>
                     </div>
                   )}
+                  {market.length > 0 &&
+                    ( 
+                      <div className="flex flex-col gap-4 relative">
+                        <div className="text-white text-xl font-medium">Choose DEX platform</div>
+                        <button 
+                          className="w-full text-[#838587] px-4 py-3.5 text-lg font-medium bg-[#181a1b] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-between items-center hover:bg-[#1a1a1a] transition-colors" 
+                          onClick={() => setSelectDex(!selectDex)}
+                        >
+                          {market[dexIndex]}
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 10 6">
+                            <path stroke="currentColor" d="m1 1 4 4 4-4" />
+                          </svg>
+                        </button>
+                        {selectDex && (
+                          <div id="market_catagory" className="w-full bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] absolute left-0 bottom-[-100px] z-10 outline-[#313131]">
+                            {market.map((dex, index) => (
+                              <div
+                                key={"market-field-" + index }
+                                className="px-4 py-3 hover:bg-[#1a1a1a] cursor-pointer transition-colors text-white"
+                                onClick={() => {
+                                  setSelectDex(false);
+                                  setDexIndex(index);
+                                }}
+                              >
+                                {dex}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+                    )
+                  }
+                </div>
+                <div>
+
                 </div>
                 {/* Target Value & Resolution Date side by side */}
                 <div className="flex flex-col gap-6">
@@ -833,6 +868,7 @@ export default function Propose() {
                         placeholder="Enter target value"
                         name="value"
                         onChange={onInputChange}
+                        value={data.value}
                         min={0}
                       />
                       <div className={`text-red ${error.value !== "" ? "" : "invisible"}`}>*Invalid Prediction Value</div>
@@ -861,7 +897,7 @@ export default function Propose() {
                         onClick={() => setData(prev => ({ ...prev, range: 0 }))}
                       >
                         Price Target
-                      </button>
+                      </button> 
                       <button
                         className={`flex-1 px-4 py-3.5 text-lg font-semibold rounded-2xl border border-[#232a32] transition-colors ${
                           data.range === 1

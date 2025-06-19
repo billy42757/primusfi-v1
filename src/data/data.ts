@@ -1,5 +1,7 @@
 import { IconName } from "@/components/elements/Icons/Icons";
 import type { Metadata } from "next";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import BN from "bn.js";
 
 export const marketCarouselItems = [
   {
@@ -85,29 +87,31 @@ export const marketField = [
       {
         api_name: "Coingecho",
         needed_data: [
+          // {
+          //   name: "vs_currency",
+          //   placeholder: "usd"
+          // },
           {
-            name: "vs_currency",
-            placeholder: "usd"
-          },
-          {
-            name: "id",
+            name: "feedName",
             placeholder: "solana"
           }
         ],
         task: null,
-        api_link: (...args: string[]) => `https://api.coingecko.com/api/v3/simple/price?ids=${args[1]}&vs_currencies=${args[0]}`,
-        market_keyword: (...args: string[]) => `id: ${args[1]}, vs_currency: ${args[0]}`,
+        api_link: (...args: string[]) => `https://api.coingecko.com/api/v3/simple/price?ids=${args[0]}&vs_currencies=usd`,
+        // mc_link: (...args: string[]) => `https://api.coingecko.com/api/v3/coins/markets?ids=${args[0]}&vs_currency=usd`,
+        market_keyword: (...args: string[]) => `id: ${args[0]}, vs_currency: usd`,
       },
       {
         api_name: "Dexscreener",
         needed_data: [
           {
-            name: "token",
+            name: "feedName",
             placeholder: "EGfWrQjqEexyPcZNUFGU8LypCikg34q2vqtk7hwBzWdS"
           }
         ],
         task: "$.pairs[0].priceUsd",
         api_link: (...args: string[]) => `https://api.dexscreener.com/latest/dex/tokens/${args[0]}`,
+        // mc_link: (...args: string[]) => `https://api.dexscreener.com/latest/dex/tokens/${args[0]}`,
         market_keyword: (...args: string[]) => `token: ${args[0]}`,
       }
     ]
@@ -214,3 +218,15 @@ export const marketField = [
     ]
   }
 ]
+
+export const marketConfig = {
+  range: 0,
+  tokenAmount: new BN(1000000000),
+  tokenPrice: new BN(0.00001 * LAMPORTS_PER_SOL),
+  nameA: "AToken",
+  nameB: "BToken",
+  symbolA: "A",
+  symbolB: "B",
+  urlA: "https://tokena",
+  urlB: "https://tokenb",
+}
