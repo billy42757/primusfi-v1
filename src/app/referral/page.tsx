@@ -3,9 +3,15 @@
 import ReferralItem from "@/components/elements/referral/ReferralItem";
 import { LuCopy } from "react-icons/lu";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUserFriends, FaCoins } from "react-icons/fa";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useSearchParams } from "next/navigation";
+import { url } from "@/data/data";
+import { errorAlert } from "@/components/elements/ToastGroup";
+import { ReferralType } from "@/types/type";
 
 const referrals = [
   {
@@ -25,16 +31,36 @@ const referrals = [
 ];
 
 export default function Referral() {
+  const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);
-  const referralCode = "ze13eyaa286d6ju76";
-  const referralLink = `https://speculape.com/${referralCode}`;
+  const [referralCode, setReferral] = useState("");
+  const [referral, setReferrals] = useState<ReferralType[] | null>([]);
+  const { publicKey } = useWallet();
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(referralLink);
+    navigator.clipboard.writeText(referralCode);
     setCopied(true);
     toast.success("Referral link copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (!publicKey) {
+      errorAlert("Please connect wallet!");
+      return
+    }
+    (async() =>{
+      const res = await axios.post(url + "api/referral/", {
+        wallet: publicKey.toBase58(),
+        referralCode: ref? ref : ""
+      });
+      setReferral(`http://localhost:3000/referral?ref=${res.data.code}`);
+      console.log("res.data.code.referrals", res.data.referrals);
+      
+      setReferrals(res.data.referrals);
+    })();
+  }, [publicKey]); 
 
   const totalEarnings = referrals.reduce((sum, ref) => sum + parseFloat(ref.amount), 0);
   const activeReferrals = referrals.filter(ref => ref.status === "active").length;
@@ -76,7 +102,7 @@ export default function Referral() {
         <div className="h-[60px] p-2 bg-[#1e1e1e] rounded-xl border border-[#313131] flex items-center gap-3">
           <div className="flex-1 px-6 py-3 rounded-lg">
             <div className="text-[#838587] text-xl font-medium font-satothi">
-              {referralLink}
+              {referralCode}
             </div>
           </div>
           <motion.button
@@ -99,14 +125,14 @@ export default function Referral() {
           Activity
         </h2>
         <div className="flex flex-col gap-4">
-          {referrals.map((referral, index) => (
+          {referral?.map((refer, index) => (
             <motion.div
-              key={referral.referralCode}
+              key={index.toString() + refer.referralCode}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <ReferralItem {...referral} />
+              <ReferralItem {...refer} />
             </motion.div>
           ))}
         </div>

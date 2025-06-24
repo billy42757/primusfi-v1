@@ -3,22 +3,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaUser, FaClock, FaCoins } from "react-icons/fa";
+import { ReferralType } from "@/types/type";
+import { elipsKey, timeAgo } from "@/utils";
 
-// Define types for props
-interface ReferralItemProps {
-  referralCode: string;
-  timeAgo: string;
-  amount: string;
-  status: "active" | "pending";
-  user: string;
-}
-
-const ReferralItem: React.FC<ReferralItemProps> = ({
-  referralCode,
-  timeAgo,
-  amount,
-  status,
-  user,
+const ReferralItem: React.FC<ReferralType> = ({
+    wallet,
+    referralCode,
+    referredLevel,
+    status,
+    wallet_refered,
+    createdAt,
 }) => {
   return (
     <motion.div 
@@ -32,7 +26,7 @@ const ReferralItem: React.FC<ReferralItemProps> = ({
         </div>
         <div className="flex flex-col">
           <div className="text-white text-lg font-medium font-satoshi">
-            {user}
+            {elipsKey(wallet_refered as string)}
           </div>
           <div className="text-[#838587] text-sm font-medium font-satoshi truncate max-w-[200px]">
             {referralCode}
@@ -46,13 +40,13 @@ const ReferralItem: React.FC<ReferralItemProps> = ({
         <div className="flex items-center gap-2 min-w-[100px]">
           <FaClock className="text-[#00b4d8] text-lg" />
           <div className="text-[#00b4d8] text-base font-medium font-satoshi">
-            {timeAgo}
+            {timeAgo(parseInt(createdAt as string))}
           </div>
         </div>
 
         {/* Status Badge */}
         <div className={`px-4 py-2 rounded-lg text-sm font-medium min-w-[100px] text-center ${
-          status === "active" 
+          status === "ACTIVE" 
             ? "bg-[#00b4d8]/10 text-[#00b4d8]" 
             : "bg-[#838587]/10 text-[#838587]"
         }`}>
@@ -64,7 +58,8 @@ const ReferralItem: React.FC<ReferralItemProps> = ({
           <FaCoins className="text-[#00b4d8] text-lg" />
           <div className="flex items-center gap-1">
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
-              {amount}
+              {/* {amount} */}
+              0
             </span>
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
               SOL

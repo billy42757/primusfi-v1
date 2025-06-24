@@ -138,7 +138,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex-1 px-4 py-2.5 bg-[#223a25] outline outline-1 outline-[#3fd145] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
+          className="flex-1 px-4 py-2.5 bg-[#223a25] outline outline-[#3fd145] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
           onClick={() => onVote(true, markets[index].tokenA)}
         >
           <span className="w-5 h-5 flex items-center justify-center">
@@ -149,7 +149,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex-1 px-4 py-2.5 bg-[#3a2222] outline outline-1 outline-[#ff6464] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
+          className="flex-1 px-4 py-2.5 bg-[#3a2222] outline outline-[#ff6464] rounded-2xl cursor-pointer transition-all duration-200 flex justify-center items-center gap-2"
           onClick={() => onVote(false, markets[index].tokenB)}
         >
           <span className="w-5 h-5 flex items-center justify-center">

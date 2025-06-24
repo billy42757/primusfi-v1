@@ -144,3 +144,12 @@ export type MarketDataType = {
   "description": string,
   "comments": number
 }
+
+export type ReferralType = {
+    wallet: String,
+    referralCode: String,
+    referredLevel: Number,
+    status: "PENDING" | "ACTIVE",
+    wallet_refered: String,
+    createdAt: String,
+}
