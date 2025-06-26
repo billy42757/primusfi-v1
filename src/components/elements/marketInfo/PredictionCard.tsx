@@ -4,9 +4,8 @@ import React, { useEffect } from "react";
 import { FaRegClock, FaRegStar } from "react-icons/fa6";
 import Icon from "../Icons";
 import ProgressBar from "./ProgressBar";
-import VoteButton from "../buttons/VoteBtn";
 import { useState } from "react";
-import { getCountDown } from "@/utils";
+import { elipsKey, getCountDown } from "@/utils";
 import { useGlobalContext } from "@/providers/GlobalContext";
 import { marketBetting } from "@/components/prediction_market_sdk";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
@@ -65,7 +64,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
       });
 
       if (res.status === 200) {
-        infoAlert("Market created successfully!");
+        infoAlert("Successfully betted!");
         const marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=0`);
         formatMarketData(marketData.data.data);
       }
@@ -85,7 +84,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
       <div className="self-stretch flex flex-col justify-start items-start gap-2">
         <div className="self-stretch inline-flex justify-start items-center gap-2">
           <div className="flex-1 justify-start text-[#07b3ff] lg:text-base text-xs font-semibold font-Inter leading-normal">
-            {markets[index].feedName}
+            {elipsKey(markets[index].feedName)}
           </div>
           <div className="flex justify-start items-center gap-1">
             <div className="w-5 h-5 relative overflow-hidden">
@@ -100,7 +99,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
           </div>
         </div>
         <div className="self-stretch inline-flex justify-start items-start gap-4">
-          <div className="flex-1 lg:h-[96px] h-[80px] h- overflow-auto justify-start text-white lg:text-2xl text-lg font-medium font-rubik leading-loose">
+          <div className="flex-1 h-overflow-auto justify-start text-white lg:text-2xl text-lg font-medium font-rubik">
             {markets[index].question}
           </div>
           <img className="lg:w-14 lg:h-14 w-12 h-12 rounded-lg" src={markets[index].imageUrl} alt={markets[index].feedName} />

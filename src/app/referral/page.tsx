@@ -62,8 +62,8 @@ export default function Referral() {
     })();
   }, [publicKey]); 
 
-  const totalEarnings = referrals.reduce((sum, ref) => sum + parseFloat(ref.amount), 0);
-  const activeReferrals = referrals.filter(ref => ref.status === "active").length;
+  // const totalEarnings = referrals.reduce((sum, ref) => sum + parseFloat(ref.amount), 0);
+  const activeReferrals = referral?.filter(ref => ref.status === "ACTIVE").length;
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-8">
@@ -88,7 +88,7 @@ export default function Referral() {
             <h3 className="text-white text-lg font-medium">Total Earnings</h3>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-[#00b4d8] text-2xl font-bold">{totalEarnings.toFixed(2)}</p>
+            <p className="text-[#00b4d8] text-2xl font-bold">0</p>
             <span className="text-[#00b4d8] text-2xl font-bold">SOL</span>
           </div>
         </motion.div>

@@ -11,14 +11,7 @@ interface HistoryItemProps {
   amount: string;
 }
 
-const HistoryItem: React.FC<HistoryItemProps> = ({
-  imageUrl,
-  question,
-  status,
-  percentage,
-  answer,
-  amount,
-}) => {
+const HistoryItem = (param: any) => {
   // Define status colors dynamically
   const statusColors = {
     Ongoing: "bg-[#3fd145]/10 text-[#3fd145]",
@@ -26,17 +19,18 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
     Lost: "bg-[#ff6464]/10 text-[#ff6464]",
   };
 
-  const answerColor = answer === "Yes" ? "text-[#3fd145]" : "text-[#ff6464]";
+  // const answerColor = answer === "Yes" ? "text-[#3fd145]" : "text-[#ff6464]";
+  const answerColor = "text-[#ff6464]";
 
   return (
     <div className="self-stretch p-4 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] inline-flex justify-start items-center gap-3">
-      <img className="w-8 h-8 rounded-lg" src={imageUrl} alt="Market Icon" />
+      <img className="w-8 h-8 rounded-lg" src={param.imageUrl} alt="Market Icon" />
       <div className="flex-1 justify-center text-white text-sm font-medium font-satoshi leading-relaxed">
-        {question}
+        {param.question}
       </div>
       <div className="w-[100px] rounded-[100px] inline-flex flex-col justify-center items-start">
         <div
-          className={`px-2.5 ${statusColors[status]} rounded-[100px] inline-flex justify-center items-center gap-2.5`}
+          className={`px-2.5 ${statusColors["Ongoing"]} rounded-[100px] inline-flex justify-center items-center gap-2.5`}
         >
           <div className="justify-start text-sm font-medium font-satoshi leading-normal">
             {status}
@@ -45,16 +39,16 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
       </div>
       <div className="w-[100px] flex justify-start center items-center gap-1">
         <div className="justify-start text-[#838587] text-sm font-medium font-satoshi leading-relaxed">
-          {percentage}
+          {/* {percentage} */}
         </div>
         <div
           className={`w-[30px] justify-start ${answerColor} text-sm font-medium font-satoshi leading-relaxed`}
         >
-          {answer}
+          {/* {answer} */}
         </div>
       </div>
       <div className="w-[100px] justify-start text-white text-sm font-medium font-['Inter'] leading-relaxed">
-        ${amount}
+        {/* ${amount} */}
       </div>
     </div>
   );
