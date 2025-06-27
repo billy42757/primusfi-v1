@@ -3,11 +3,12 @@ import HistoryItem from "@/components/elements/profile/HistoryItem";
 import ProfileFundItem from "@/components/elements/profile/ProfileFundItem";
 import ProfileNavbar from "@/components/elements/profile/ProfileNavbar";
 import ProfileProposeItem from "@/components/elements/profile/ProfileProposeItem";
-import { useState } from "react";
-import { FaTelegramPlane } from "react-icons/fa";
-import { LuPill } from "react-icons/lu";
-import { RiTwitterXFill } from "react-icons/ri";
-import { TbWorld } from "react-icons/tb";
+import { errorAlert } from "@/components/elements/ToastGroup";
+import { url } from "@/data/data";
+import { elipsKey } from "@/utils";
+import { useWallet } from "@solana/wallet-adapter-react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const historyData = [
   {
@@ -159,23 +160,37 @@ export default function Home() {
     "Betting History" | "Funded Market" | "Proposed Market"
   >("Betting History");
 
+  const [profileData, setProfileData] = useState<any>();
+  const { publicKey } = useWallet();
+
+  useEffect(() => {
+    if (!publicKey) {
+      errorAlert("Please connect wallet!");
+      return
+    }
+    (async() =>{
+      const res = await axios.get(url + `api/profile?wallet=${publicKey.toBase58()}`);
+      
+      setProfileData(res.data);
+    })();
+  }, [publicKey]); 
   return (
-    <div className="self-stretch h-[1184px] px-[50px] flex-col min-w-[1600px]:flex-row inline-flex justify-start items-start gap-[50px] overflow-auto">
+    <div className="self-stretch h-[1184px] px-[50px] flex-col lg:flex-row inline-flex justify-start items-start gap-[50px] overflow-auto">
       <div className="lg:w-[680px] flex-col lg:flex-row p-6 bg-[#1e1e1e] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex justify-start items-start gap-4">
-        <img
+        {/* <img
           className="sm:w-[100px] sm:h-[100px] w-[50px] h-[50px] rounded-[10px] border border-white"
           src="https://placehold.co/100x100"
           alt=""
-        />
+        /> */}
         <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
           <div className="self-stretch inline-flex justify-start items-start gap-4">
             <div className="flex-1 h-[100px] inline-flex flex-col justify-center items-start gap-1">
               <div className="justify-start text-[#3fd145] text-[32px] font-medium font-satoshi leading-loose">
-                Ahmed45
+                User One
               </div>
-              <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                @ahmmeada
-              </div>
+              {/* <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
+                @speculapeuser
+              </div> */}
             </div>
             <div className="flex-1 h-[100px] flex justify-end items-center gap-1">
               <div className="px-3 py-1 rounded-[100px] outline-1 outline-offset-[-1px] outline-[#313131] flex justify-start items-center gap-1">
@@ -185,7 +200,7 @@ export default function Home() {
                   <div className="w-[19.14px] h-[17.50px] left-[2px] top-[3px] absolute opacity-50 bg-[#838587]" />
                 </div>
                 <div className="justify-start text-[#07b3ff] text-xl font-medium font-satoshi leading-relaxed">
-                  0x214..e14sd
+                  {publicKey?.toBase58() ?elipsKey(publicKey?.toBase58()):""}
                 </div>
               </div>
             </div>
@@ -206,7 +221,7 @@ export default function Home() {
                   Active Bet
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  25
+                  {profileData? profileData.activeBet : 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -214,7 +229,7 @@ export default function Home() {
                   Total Bet
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  753
+                  {profileData? profileData.totalBet : 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -222,7 +237,7 @@ export default function Home() {
                   Total Liquidity Provided
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  41 SOL
+                  {profileData? profileData.totalLiquidityProvided : 0} SOL
                 </div>
               </div>
             </div>
@@ -232,7 +247,7 @@ export default function Home() {
                   Fees Earned From Liquidity
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  89 SOL
+                  {profileData? Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9) : 0} SOL
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -240,7 +255,7 @@ export default function Home() {
                   Earning From Bet
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  $215,340
+                  ${profileData? profileData.earnedBet : 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -248,7 +263,7 @@ export default function Home() {
                   Proposed Market
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  12
+                  {profileData? profileData.totalProposedMarket : 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -256,67 +271,12 @@ export default function Home() {
                   Total Referrals
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  9
+                  {profileData? profileData.totalreferrals : 0}
                 </div>
               </div>
             </div>
           </div>
-          <div className="self-stretch pt-6 flex flex-col justify-start items-start gap-2">
-            <div className="self-stretch justify-start text-white text-2xl font-medium font-satoshi leading-relaxed">
-              About
-            </div>
-            <div className="self-stretch justify-start">
-              <span className="text-[#838587] text-base font-normal font-satoshi leading-tight">
-                Trump Memes are intended to function as an expression of support
-                for, and engagement with, the ideals and beliefs embodied by the
-                symbol {`"$TRUMP"`} and the associated artwork, and are not intended
-                to be, or to be the subject of, an investment opportunity,
-                investment contract, or security of any type.
-              </span>
-              <span className="text-[#07b3ff] text-base font-bold font-satoshi leading-tight">
-                Show more
-              </span>
-            </div>
-          </div>
-          <div className="self-stretch rounded-2xl flex flex-col justify-start items-start gap-4">
-            <div className="self-stretch justify-center text-white text-2xl font-medium font-satoshi capitalize leading-normal">
-              Socials
-            </div>
-            <div className="self-stretch inline-flex justify-start items-start gap-2 flex-wrap content-start">
-              <div className="px-3 py-2 opacity-80 bg-[#111111] rounded-xl flex justify-end items-center gap-1">
-                <div className="w-4 h-4 relative overflow-hidden">
-                  <RiTwitterXFill size={16} color="gray" />
-                </div>
-                <div className="justify-start text-white text-xs font-normal font-satoshi leading-none">
-                  x (Twitter)
-                </div>
-              </div>
-              <div className="px-3 py-2 opacity-80 bg-[#111111] rounded-xl flex justify-end items-center gap-1">
-                <div className="w-4 h-4 relative overflow-hidden">
-                  <FaTelegramPlane color="gray" size={16} />
-                </div>
-                <div className="justify-start text-white text-xs font-normal font-satoshi leading-none">
-                  Telegram
-                </div>
-              </div>
-              <div className="px-3 py-2 opacity-80 bg-[#111111] rounded-xl flex justify-end items-center gap-1">
-                <div className="w-4 h-4 relative overflow-hidden">
-                  <TbWorld color="gray" size={16} />
-                </div>
-                <div className="justify-start text-white text-xs font-normal font-satoshi leading-none">
-                  Website
-                </div>
-              </div>
-              <div className="px-3 py-2 opacity-80 bg-[#111111] rounded-xl flex justify-end items-center gap-1">
-                <div className="w-4 h-4 relative overflow-hidden">
-                  <LuPill size={16} color="gray" />
-                </div>
-                <div className="justify-start text-white text-xs font-normal font-satoshi leading-none">
-                  More
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
       <div className="flex-1 inline-flex flex-col justify-start items-start gap-[11px]">
@@ -344,9 +304,9 @@ export default function Home() {
                 Bet Amount
               </div>
             </div>
-            {historyData.map((item, index) => (
+            {profileData? profileData.bettingHistory.map((item: any, index: number) => (
               <HistoryItem key={index} {...item} />
-            ))}
+            )): ""}
           </>
         )}
 
@@ -366,15 +326,15 @@ export default function Home() {
                 Status
               </div>
               <div className="w-[100px] justify-center text-[#838587] text-base font-medium font-satoshi leading-none">
-                Fund Amount
+                Percentage
               </div>
               <div className="w-[100px] justify-center text-[#838587] text-base font-medium font-satoshi leading-none">
                 Ext. Payment
               </div>
             </div>
-            {funds.map((fund, index) => (
+            {profileData? profileData.fundedMarkets.map((fund: any, index: any) => (
               <ProfileFundItem key={index} {...fund} />
-            ))}
+            )): ""}
           </>
         )}
 
@@ -400,9 +360,9 @@ export default function Home() {
                 Initial Liquidity
               </div>
             </div>
-            {proposals.map((proposal, index) => (
+            {profileData? profileData.proposedMarket.map((proposal: any, index: any) => (
               <ProfileProposeItem key={index} {...proposal} />
-            ))}
+            )) : ""}
           </>
         )}
 

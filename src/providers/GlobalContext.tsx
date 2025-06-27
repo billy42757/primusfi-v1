@@ -29,7 +29,8 @@ type MarketDataType = {
   "playerACount": number,
   "playerBCount": number,
   "totalInvestment": number,
-  "description": string
+  "description": string,
+  "comments": number
 }
 
 // Define Global Context Type

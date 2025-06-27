@@ -6,7 +6,7 @@ const RecentList: React.FC = () => {
     {
       question: "Who will be Trump’s secretary of defense?",
       timeAgo: "2m",
-      userName: "irvanwibowo",
+      userName: "bludclat",
       action: "sold",
       price: "0.000032 BTC",
       imageSrc: "https://placehold.co/16x16",
@@ -15,7 +15,7 @@ const RecentList: React.FC = () => {
     {
       question: "Who will be Trump’s secretary of defense?",
       timeAgo: "2m",
-      userName: "irvanwibowo",
+      userName: "bomboclart",
       action: "sold",
       price: "0.000032 BTC",
       imageSrc: "https://placehold.co/16x16",
@@ -24,7 +24,7 @@ const RecentList: React.FC = () => {
     {
       question: "Who will be Trump’s secretary of defense?",
       timeAgo: "2m",
-      userName: "irvanwibowo",
+      userName: "succlart",
       action: "sold",
       price: "0.000032 BTC",
       imageSrc: "https://placehold.co/16x16",

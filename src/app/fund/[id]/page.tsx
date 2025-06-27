@@ -45,7 +45,8 @@ export default function FundDetail() {
   const onFund = async () => {
     try {
       const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
-
+      console.log("fundAmount:", fundAmount );
+      
       const active = status === "active" ? true : false;
 
       console.log("status:", active);
@@ -53,7 +54,7 @@ export default function FundDetail() {
       const result = await axios.post("http://localhost:8080/api/market/liquidity", { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
 
       if (result.status === 200) {
-        infoAlert("Market created successfully!");
+        infoAlert("Funed successfully!");
         router.replace(`/fund`);
       }
     } catch (error) {
@@ -138,29 +139,18 @@ export default function FundDetail() {
                   </div>
                   <div className="sm:w-[392px] w-[200px] h-[97px] p-4 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-start items-start gap-4">
                     <div className="self-stretch h-[23px] inline-flex justify-between items-center">
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#3fd145] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch relative">
-                        <div className="sm:w-[11px] w-[5px] h-[23px] left-0 top-0 absolute bg-[#838587] rounded-[100px]" />
-                        <div className="w-[9.58px] h-[23px] left-0 top-0 absolute bg-[#3fd145]" />
-                      </div>
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
-                      <div className="sm:w-[11px] w-[5px] self-stretch bg-[#838587] rounded-[100px]" />
+                      {Array.from({ length: 20 }).map((_, index) => {
+                        const filledSegments = Math.floor((market.totalInvestment / 30) * 20);
+                        const isFilled = index < filledSegments;
+                        return (
+                          <div
+                            key={index}
+                            className={`sm:w-[11px] w-[5px] self-stretch ${
+                              isFilled ? 'bg-[#3fd145]' : 'bg-[#838587]'
+                            } rounded-[100px] animate-pulse [animation-delay:${index * 100}ms]`}
+                          />
+                        );
+                      })}
                     </div>
                     <div className="self-stretch rounded-xl inline-flex justify-between items-center">
                       <div className="justify-start">
@@ -253,7 +243,7 @@ export default function FundDetail() {
                 </div>
               </div>
               <div className="justify-start text-[#838587] text-base font-bold font-satoshi leading-none">
-                20%
+                {fundAmount > 0 ? ((fundAmount / (market.totalInvestment + fundAmount)) * 100).toFixed(2) : "0.00"}%
               </div>
             </div>
             <div className="self-stretch inline-flex justify-between items-center">

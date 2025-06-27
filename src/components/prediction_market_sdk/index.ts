@@ -19,6 +19,7 @@ import {
 import { GlobalSettingType, CreateMarketType, DepositeLiquidityType, BetType, OracleType } from "../../types/type";
 import { SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { getAssociatedTokenAccount, getOrCreateATAInstruction } from "./util";
+import { marketConfig } from "@/data/data";
 import idl  from "./idl/prediction.json";
 import { BN } from 'bn.js';
 
@@ -89,15 +90,15 @@ export const createMarket = async (param: CreateMarketType) => {
     .initMarket({
       value: param.value,
       marketId: param.marketID,
-      range: param.range,
-      tokenAmount: new BN(param.tokenAmount),
-      tokenPrice: new BN(param.tokenPrice * LAMPORTS_PER_SOL),
-      nameA: param.nameA,
-      nameB: param.nameB,
-      symbolA: param.symbolA,
-      symbolB: param.symbolB,
-      urlA: param.urlA,
-      urlB: param.urlB,
+      range: marketConfig.range,
+      tokenAmount: marketConfig.tokenAmount,
+      tokenPrice: marketConfig.tokenPrice,
+      nameA: marketConfig.nameA,
+      nameB: marketConfig.nameB,
+      symbolA: marketConfig.symbolA,
+      symbolB: marketConfig.symbolB,
+      urlA: marketConfig.urlA,
+      urlB: marketConfig.urlB,
       date: new BN(militime/1000),
     })
     .accounts({

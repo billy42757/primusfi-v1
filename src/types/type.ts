@@ -1,4 +1,3 @@
-import { init } from "next/dist/compiled/webpack/webpack";
 import { TransactionInstruction, Keypair, PublicKey } from "@solana/web3.js";
 import { AnchorWallet, WalletContextState } from "@solana/wallet-adapter-react";
 
@@ -26,6 +25,10 @@ export interface MarketCarouselItemProps {
   bgImage: string;
   mainImage: string;
   overlayImage: string;
+  volume: string;
+  timeLeft: string;
+  yesPercentage: number;
+  comments: number;
 }
 
 // Define Prediction type for active predictions
@@ -53,22 +56,14 @@ export interface PendingData {
 export interface ProposeType {
   marketField: number;
   imageUrl: string;
+  range: number,
   apiType: number;
   question: string;
   feedName: string;
   dataLink: string;
   date: string;
   task: string;
-  ATokenName: string;
-  BTokenName: string;
-  ATokenSymbol: string;
-  BTokenSymbol: string;
-  ATokenURL: string;
-  BTokenURL: string;
-  TokenAmount: number;
-  TokenPrice: number,
   value: number,
-  range: number,
   creator: string,
   description: string
 }
@@ -84,17 +79,8 @@ export type GlobalSettingType = {
   
 export type CreateMarketType = {
     marketID: String;
-    tokenAmount: number;
-    tokenPrice: number;
-    nameA: String;
-    nameB: String;
-    symbolA: String;
-    symbolB: String;
-    urlA: String;
-    urlB: String;
     date: String;
     value: number;
-    range: number;
     feed: Keypair;
     wallet: WalletContextState,
     anchorWallet: AnchorWallet,
@@ -155,5 +141,16 @@ export type MarketDataType = {
   "playerACount": number,
   "playerBCount": number,
   "totalInvestment": number,
-  "description": string
+  "description": string,
+  "comments": number
+}
+
+export type ReferralType = {
+    wallet: String,
+    referralCode: String,
+    referredLevel: Number,
+    fee: number,
+    status: "PENDING" | "ACTIVE",
+    wallet_refered: String,
+    createdAt: String,
 }

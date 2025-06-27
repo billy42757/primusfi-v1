@@ -8,28 +8,19 @@ import { useEffect, useState } from "react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { RxCross2 } from "react-icons/rx";
 
-const HeaderSideBar = ({
-  isCancel,
-  setIsCanceled,
-}: {
+interface HeaderSideBarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
   isCancel?: boolean;
   setIsCanceled?: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { width } = useWindowSize();
+}
 
-  useEffect(() => {
-    if (width && width < 1536) {
-      setIsCollapsed(true);
-    } else {
-      setIsCollapsed(false);
-    }
-  }, [width]);
+const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }: HeaderSideBarProps) => {
+  const { width } = useWindowSize();
 
   return (
     <div
-      className={`self-stretch inline-flex   ${isCollapsed ? "md:w-[104px] w-[280px]" : "md:min-w-[280px]"
-        } bg-[#1E1E1E]   flex flex-col`}
+      className={`hidden md:flex fixed top-0 left-0 h-screen z-30 ${isCollapsed ? "w-[104px]" : "w-[280px]"} bg-[#1E1E1E] flex-col transition-all duration-300`}
     >
       {/* Logo */}
       <div
@@ -94,12 +85,12 @@ const HeaderSideBar = ({
         {!isCollapsed && (
           <div className="self-stretch justify-start px-3">
             <span className="text-white text-xl font-medium font-satoshi leading-loose">
-              Let’s connect
+              Follow us
             </span>
             <span className="text-[#838587] text-xl font-medium font-satoshi leading-loose">
               {" "}
-              in <br />
-              socials platform
+              on <br />
+              social media
             </span>
           </div>
         )}
@@ -130,11 +121,11 @@ const HeaderSideBar = ({
             <FaXTwitter className="text-white" />
             {!isCollapsed && (
               <div className="justify-start text-white text-base font-medium font-satoshi leading-normal">
-                X (formerly twitter)
+                X (twitter)
               </div>
             )}
             <div className="md:hidden justify-start text-white text-base font-medium font-satoshi leading-normal">
-              X (formerly twitter)
+              X (twitter)
             </div>
           </Link>
         </div>
