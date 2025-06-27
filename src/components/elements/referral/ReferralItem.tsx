@@ -10,6 +10,7 @@ const ReferralItem: React.FC<ReferralType> = ({
     wallet,
     referralCode,
     referredLevel,
+    fee,
     status,
     wallet_refered,
     createdAt,
@@ -59,7 +60,7 @@ const ReferralItem: React.FC<ReferralType> = ({
           <div className="flex items-center gap-1">
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
               {/* {amount} */}
-              0
+             {fee}
             </span>
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
               SOL

@@ -149,6 +149,7 @@ export type ReferralType = {
     wallet: String,
     referralCode: String,
     referredLevel: Number,
+    fee: number,
     status: "PENDING" | "ACTIVE",
     wallet_refered: String,
     createdAt: String,

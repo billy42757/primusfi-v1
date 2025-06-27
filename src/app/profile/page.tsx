@@ -9,10 +9,6 @@ import { elipsKey } from "@/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { FaTelegramPlane } from "react-icons/fa";
-import { LuPill } from "react-icons/lu";
-import { RiTwitterXFill } from "react-icons/ri";
-import { TbWorld } from "react-icons/tb";
 
 const historyData = [
   {
@@ -241,7 +237,7 @@ export default function Home() {
                   Total Liquidity Provided
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? profileData.totalLiquidityProvider : 0} SOL
+                  {profileData? profileData.totalLiquidityProvided : 0} SOL
                 </div>
               </div>
             </div>
@@ -251,7 +247,7 @@ export default function Home() {
                   Fees Earned From Liquidity
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? profileData.earnedFeeLiquidity : 0} SOL
+                  {profileData? Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9) : 0} SOL
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -330,15 +326,15 @@ export default function Home() {
                 Status
               </div>
               <div className="w-[100px] justify-center text-[#838587] text-base font-medium font-satoshi leading-none">
-                Fund Amount
+                Percentage
               </div>
               <div className="w-[100px] justify-center text-[#838587] text-base font-medium font-satoshi leading-none">
                 Ext. Payment
               </div>
             </div>
-            {funds.map((fund, index) => (
+            {profileData? profileData.fundedMarkets.map((fund: any, index: any) => (
               <ProfileFundItem key={index} {...fund} />
-            ))}
+            )): ""}
           </>
         )}
 
@@ -364,9 +360,9 @@ export default function Home() {
                 Initial Liquidity
               </div>
             </div>
-            {proposals.map((proposal, index) => (
+            {profileData? profileData.proposedMarket.map((proposal: any, index: any) => (
               <ProfileProposeItem key={index} {...proposal} />
-            ))}
+            )) : ""}
           </>
         )}
 

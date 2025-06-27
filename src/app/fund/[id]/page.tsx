@@ -45,7 +45,8 @@ export default function FundDetail() {
   const onFund = async () => {
     try {
       const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
-
+      console.log("fundAmount:", fundAmount );
+      
       const active = status === "active" ? true : false;
 
       console.log("status:", active);

@@ -31,9 +31,9 @@ const referrals = [
 ];
 
 export default function Referral() {
-  const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);
   const [referralCode, setReferral] = useState("");
+  const [updating, setUpdating] = useState(true);
   const [referral, setReferrals] = useState<ReferralType[] | null>([]);
   const { publicKey } = useWallet();
 
@@ -45,7 +45,9 @@ export default function Referral() {
   };
 
   useEffect(() => {
-    const ref = searchParams.get("ref");
+    setUpdating(true);
+
+    const ref = new URLSearchParams(window.location.search).get("ref");
     if (!publicKey) {
       errorAlert("Please connect wallet!");
       return
@@ -59,6 +61,7 @@ export default function Referral() {
       console.log("res.data.code.referrals", res.data.referrals);
       
       setReferrals(res.data.referrals);
+      setUpdating(false);
     })();
   }, [publicKey]); 
 
@@ -77,7 +80,7 @@ export default function Referral() {
             <FaUserFriends className="text-[#00b4d8] text-xl" />
             <h3 className="text-white text-lg font-medium">Active Referrals</h3>
           </div>
-          <p className="text-[#00b4d8] text-2xl font-bold">{activeReferrals}</p>
+          <p className="text-[#00b4d8] text-2xl font-bold">{referral?.length}</p>
         </motion.div>
         <motion.div 
           whileHover={{ scale: 1.02 }}
@@ -88,8 +91,8 @@ export default function Referral() {
             <h3 className="text-white text-lg font-medium">Total Earnings</h3>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-[#00b4d8] text-2xl font-bold">0</p>
-            <span className="text-[#00b4d8] text-2xl font-bold">SOL</span>
+            <p className="text-[#00b4d8] text-2xl font-bold"></p>
+            <span className="text-[#00b4d8] text-2xl font-bold">{referral?.reduce((sum, i) => sum + i.fee, 0)} SOL</span>
           </div>
         </motion.div>
       </div>
@@ -102,7 +105,7 @@ export default function Referral() {
         <div className="h-[60px] p-2 bg-[#1e1e1e] rounded-xl border border-[#313131] flex items-center gap-3">
           <div className="flex-1 px-6 py-3 rounded-lg">
             <div className="text-[#838587] text-xl font-medium font-satothi">
-              {referralCode}
+              {updating?"Updating..." : referralCode}
             </div>
           </div>
           <motion.button
