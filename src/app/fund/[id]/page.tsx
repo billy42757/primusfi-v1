@@ -44,6 +44,10 @@ export default function FundDetail() {
 
   const onFund = async () => {
     try {
+      if (!wallet.connected) {
+        errorAlert("Failed funding")
+        return
+      }
       const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
       console.log("fundAmount:", fundAmount );
       
@@ -140,7 +144,7 @@ export default function FundDetail() {
                   <div className="sm:w-[392px] w-[200px] h-[97px] p-4 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-start items-start gap-4">
                     <div className="self-stretch h-[23px] inline-flex justify-between items-center">
                       {Array.from({ length: 20 }).map((_, index) => {
-                        const filledSegments = Math.floor((market.totalInvestment / 30) * 20);
+                        const filledSegments = Math.floor((market.totalInvestment / 0.1) * 20);
                         const isFilled = index < filledSegments;
                         return (
                           <div
@@ -155,7 +159,7 @@ export default function FundDetail() {
                     <div className="self-stretch rounded-xl inline-flex justify-between items-center">
                       <div className="justify-start">
                         <span className="text-[#3fd145] text-lg font-semibold font-interSemi leading-relaxed">
-                          {market.totalInvestment.toFixed(4)}
+                          {parseFloat(Number(market.totalInvestment).toFixed(9)).toString()}
                         </span>
                         <span className="text-[#838587] text-lg font-semibold font-interSemi leading-relaxed">
                           / 30

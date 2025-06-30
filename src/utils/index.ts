@@ -122,3 +122,7 @@ export function timeAgo(ms: number): string {
     return `${years} year${years !== 1 ? 's' : ''} ago`;
   }
 }
+
+export function stylizeFloat(num: number) {
+  parseFloat(Number(num).toFixed(9)).toString()
+}

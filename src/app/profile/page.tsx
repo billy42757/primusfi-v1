@@ -5,7 +5,7 @@ import ProfileNavbar from "@/components/elements/profile/ProfileNavbar";
 import ProfileProposeItem from "@/components/elements/profile/ProfileProposeItem";
 import { errorAlert } from "@/components/elements/ToastGroup";
 import { url } from "@/data/data";
-import { elipsKey } from "@/utils";
+import { elipsKey, stylizeFloat } from "@/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -213,7 +213,7 @@ export default function Home() {
                   Total Portfolio Value
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  $215,340
+                  {profileData?parseFloat(Number(profileData.earnedFeeLiquidity / 1000000000 + profileData.totalLiquidityProvided).toFixed(9)).toString(): 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -237,7 +237,7 @@ export default function Home() {
                   Total Liquidity Provided
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? profileData.totalLiquidityProvided : 0} SOL
+                  {profileData? parseFloat(Number(profileData.totalLiquidityProvided).toFixed(9)).toString() : 0} SOL
                 </div>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function Home() {
                   Fees Earned From Liquidity
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9) : 0} SOL
+                  {profileData? parseFloat(Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9)).toString() : 0} SOL
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">

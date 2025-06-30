@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { FaUser, FaClock, FaCoins } from "react-icons/fa";
 import { ReferralType } from "@/types/type";
 import { elipsKey, timeAgo } from "@/utils";
+import axios from "axios";
+import { url } from "@/data/data";
+import { errorAlert, infoAlert } from "../ToastGroup";
 
 const ReferralItem: React.FC<ReferralType> = ({
     wallet,
@@ -15,6 +18,29 @@ const ReferralItem: React.FC<ReferralType> = ({
     wallet_refered,
     createdAt,
 }) => {
+  const [claiming, setClaiming] = React.useState(false);
+  const handleClaim = async (amount: number) => {
+    try {
+      if (claiming) {
+        return
+      }
+
+      setClaiming(true);
+      const res = await axios.post(url + "api/referral/claim", {
+        wallet,
+        amount
+      });
+
+      if (res.status === 200) {
+        infoAlert("Claimed successfully!");
+        setClaiming(false);
+      }
+    } catch (error) {
+      setClaiming(false);
+      errorAlert("Failed claiming!");
+    }
+  }
+
   return (
     <motion.div 
       whileHover={{ scale: 1.02 }}
@@ -59,14 +85,25 @@ const ReferralItem: React.FC<ReferralType> = ({
           <FaCoins className="text-[#00b4d8] text-lg" />
           <div className="flex items-center gap-1">
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
-              {/* {amount} */}
-             {fee}
+             { parseFloat(Number(fee / 100000000).toFixed(9)).toString()}
             </span>
             <span className="text-[#00b4d8] text-lg font-medium font-satoshi">
               SOL
             </span>
           </div>
         </div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => handleClaim(fee)}
+          className="px-4 py-3 bg-[#282828] rounded-xl cursor-pointer border border-[#313131] flex items-center gap-2 hover:bg-[#313131] transition-colors"
+        >
+          {/* <LuCopy className="text-[#00b4d8] w-4 h-4" /> */}
+          <span className="text-white text-base font-medium font-satothi">
+            {claiming? "Claiming..." : "Claim"}
+          </span>
+        </motion.button>
       </div>
     </motion.div>
   );
