@@ -3,6 +3,10 @@ import Icon from "./Icons";
 import { IconName } from "./Icons/Icons";
 import SearchInputItem from "./marketInfo/SearchInputItem";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
+import axios from "axios";
+import { url } from "@/data/data";
+import { errorAlert } from "./ToastGroup";
+import { useGlobalContext } from "@/providers/GlobalContext";
 
 const searchInputs = [
   { title: "Volume", minPlaceholder: "Min", maxPlaceholder: "Max" },
@@ -36,6 +40,16 @@ const Navbar: React.FC<NavbarProps> = ({
   const [showFilter, setShowFilter] = useState<boolean>(false);
   const filterRef = useRef<HTMLDivElement | null>(null);
   const searchPadRef = useRef<HTMLDivElement | null>(null);
+  const { markets, activeTab, formatMarketData } = useGlobalContext();
+  // State for managing SearchInputItem values
+  const [filterValues, setFilterValues] = useState<{
+    [key: string]: { min: number | ""; max: number | "" };
+  }>({
+    Volume: { min: "", max: "" },
+    "Expiry Time": { min: "", max: "" },
+    "Yes Probability": { min: "", max: "" },
+    "No Probability": { min: "", max: "" },
+  });
 
   const handleCategorySelect = (category: string) => {
     setActiveCategory(category);
@@ -44,6 +58,27 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const handleFilterClick = () => {
     setShowFilter((prevState) => !prevState);
+  };
+
+  // Handle filter value changes
+  const handleFilterChange = (title: string, type: "min" | "max", value: number | "") => {
+    setFilterValues(prev => ({
+      ...prev,
+      [title]: {
+        ...prev[title],
+        [type]: value
+      }
+    }));
+  };
+
+  // Reset all filter values
+  const handleReset = () => {
+    setFilterValues({
+      Volume: { min: "", max: "" },
+      "Expiry Time": { min: "", max: "" },
+      "Yes Probability": { min: "", max: "" },
+      "No Probability": { min: "", max: "" },
+    });
   };
 
   // Close the search input pad if clicked outside
@@ -65,6 +100,28 @@ const Navbar: React.FC<NavbarProps> = ({
     };
   }, []);
 
+  const onSubmit = async() => {
+    try {
+      const filter_data = {
+        volumeMin: filterValues["Volume"].min,
+        volumeMax: filterValues["Volume"].max,
+        expiryStart: filterValues["Expiry Time"].min, // ISO date
+        expiryEnd: filterValues["Expiry Time"].max,
+        yesProbMin: filterValues["Yes Probability"].min,
+        yesProbMax: filterValues["Yes Probability"].max,
+        noProbMin: filterValues["No Probability"].min,
+        noProbMax: filterValues["No Probability"].max,
+      }
+
+      console.log("filter data:", filter_data);
+      
+      const filter_result = await axios.post(url + "api/market/filter", filter_data);
+      formatMarketData(filter_result.data);
+    } catch (error) {
+      console.log("Filter error:", error);
+      errorAlert("Filter Error!");
+    }
+  }
   return (
     <nav className="w-full flex justify-between items-center py-4 px-6 bg-[#1a1a1a] relative">
       <div className="flex items-center lg:gap-6">
@@ -128,16 +185,31 @@ const Navbar: React.FC<NavbarProps> = ({
               title={input.title}
               minPlaceholder={input.minPlaceholder}
               maxPlaceholder={input.maxPlaceholder}
+              minValue={filterValues[input.title]?.min || ""}
+              maxValue={filterValues[input.title]?.max || ""}
+              onMinChange={(value) => handleFilterChange(input.title, "min", value)}
+              onMaxChange={(value) => handleFilterChange(input.title, "max", value)}
             />
           ))}
           <div className="self-stretch inline-flex justify-start items-start gap-2">
             <div
+              onClick={handleReset}
               className="flex-1 px-4 cursor-pointer py-2.5 rounded-[100px] outline-1 outline-offset-[-1px] outline-[#838587] flex justify-center items-center gap-1 transition-all duration-300 hover:bg-[#383838] hover:text-white hover:shadow-md active:scale-95"
             >
               <div
                 className="justify-center text-[#838587] text-sm font-medium font-satoshi leading-[14px] transition-all duration-300 group-hover:text-white"
               >
                 Reset
+              </div>
+            </div>
+            <div
+              onClick={onSubmit}
+              className="flex-1 px-4 cursor-pointer py-2.5 rounded-[100px] outline-1 outline-offset-[-1px] outline-[#838587] flex justify-center items-center gap-1 transition-all duration-300 hover:bg-[#383838] hover:text-white hover:shadow-md active:scale-95"
+            >
+              <div
+                className="justify-center text-[#838587] text-sm font-medium font-satoshi leading-[14px] transition-all duration-300 group-hover:text-white"
+              >
+                Submit
               </div>
             </div>
           </div>

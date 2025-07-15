@@ -154,3 +154,13 @@ export type ReferralType = {
     wallet_refered: String,
     createdAt: String,
 }
+
+export interface RecentItemProps {
+  question: string;
+  timeAgo: string;
+  userName: string;
+  action: string;
+  price: string;
+  imageSrc: string;
+  status: 'yes' | 'no' | 'funded';
+}

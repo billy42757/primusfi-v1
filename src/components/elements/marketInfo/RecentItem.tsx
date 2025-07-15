@@ -1,15 +1,6 @@
 import React from 'react';
 import Icon from '../Icons';
-
-interface RecentItemProps {
-  question: string;
-  timeAgo: string;
-  userName: string;
-  action: string;
-  price: string;
-  imageSrc: string;
-  status: 'yes' | 'no' | 'funded';
-}
+import { RecentItemProps } from '@/types/type';
 
 const RecentItem: React.FC<RecentItemProps> = ({ question, timeAgo, userName, action, price, imageSrc, status }) => {
   let statusStyles = '';
@@ -31,7 +22,7 @@ const RecentItem: React.FC<RecentItemProps> = ({ question, timeAgo, userName, ac
       <div className="flex-1 inline-flex flex-col justify-center items-start gap-1">
         <div className="self-stretch inline-flex justify-start items-center gap-1.5">
           <div className="justify-start text-[#838587] md:text-sm font-medium font-rubik leading-normal">{question}</div>
-          <div className="justify-start text-[#838587] md:text-sm font-medium font-rubik leading-[18px]">- {timeAgo} ago</div>
+          <div className="justify-start text-[#838587] md:text-sm font-medium font-rubik leading-[18px]">- {timeAgo}</div>
         </div>
         <div className="self-stretch inline-flex justify-start items-center gap-1">
           <img className="w-4 h-4 rounded-[10px]" src={imageSrc} alt="user" />
