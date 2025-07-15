@@ -68,7 +68,8 @@ export const categories = [
   { name: "News", active: false, icon: "News" as IconName, color: "#838587" },
 ];
 
-export const url = "https://specul.vercel.app/"
+// export const url = "http://localhost:8080/"
+export const url = "https://backend.speculape.com/"
 
 export const metadata: Metadata = {
   title: "Speculape",

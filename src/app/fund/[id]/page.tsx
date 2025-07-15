@@ -7,7 +7,7 @@ import { GoArrowDownRight, GoQuestion } from "react-icons/go";
 import { ImAlarm } from "react-icons/im";
 import { useParams } from "next/navigation";
 import { useGlobalContext } from "@/providers/GlobalContext";
-import { marketField } from "@/data/data";
+import { marketField, url } from "@/data/data";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -44,6 +44,10 @@ export default function FundDetail() {
 
   const onFund = async () => {
     try {
+      if (!wallet.connected) {
+        errorAlert("Failed funding")
+        return
+      }
       const status = await depositLiquidity({ amount: fundAmount, market_id: market.market, wallet });
       console.log("fundAmount:", fundAmount );
       
@@ -51,7 +55,7 @@ export default function FundDetail() {
 
       console.log("status:", active);
 
-      const result = await axios.post("http://localhost:8080/api/market/liquidity", { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
+      const result = await axios.post(`${url}api/market/liquidity`, { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
 
       if (result.status === 200) {
         infoAlert("Funed successfully!");
@@ -140,7 +144,7 @@ export default function FundDetail() {
                   <div className="sm:w-[392px] w-[200px] h-[97px] p-4 bg-[#111111] rounded-2xl outline-1 outline-offset-[-1px] outline-[#313131] flex flex-col justify-start items-start gap-4">
                     <div className="self-stretch h-[23px] inline-flex justify-between items-center">
                       {Array.from({ length: 20 }).map((_, index) => {
-                        const filledSegments = Math.floor((market.totalInvestment / 30) * 20);
+                        const filledSegments = Math.floor((market.totalInvestment / 0.1) * 20);
                         const isFilled = index < filledSegments;
                         return (
                           <div
@@ -155,7 +159,7 @@ export default function FundDetail() {
                     <div className="self-stretch rounded-xl inline-flex justify-between items-center">
                       <div className="justify-start">
                         <span className="text-[#3fd145] text-lg font-semibold font-interSemi leading-relaxed">
-                          {market.totalInvestment.toFixed(4)}
+                          {parseFloat(Number(market.totalInvestment).toFixed(9)).toString()}
                         </span>
                         <span className="text-[#838587] text-lg font-semibold font-interSemi leading-relaxed">
                           / 30

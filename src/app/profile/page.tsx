@@ -5,155 +5,10 @@ import ProfileNavbar from "@/components/elements/profile/ProfileNavbar";
 import ProfileProposeItem from "@/components/elements/profile/ProfileProposeItem";
 import { errorAlert } from "@/components/elements/ToastGroup";
 import { url } from "@/data/data";
-import { elipsKey } from "@/utils";
+import { elipsKey, stylizeFloat } from "@/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-const historyData = [
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Will Bitcoin hit 100K by April?",
-    status: "Ongoing",
-    percentage: "20%",
-    answer: "Yes",
-    amount: "150.45",
-  },
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Who will win the 2025 election?",
-    status: "Won",
-    percentage: "13%",
-    answer: "Yes",
-    amount: "150.45",
-  },
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Will Bitcoin hit 100K by April?",
-    status: "Ongoing",
-    percentage: "56%",
-    answer: "No",
-    amount: "150.45",
-  },
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Will Bitcoin hit 100K by April?",
-    status: "Won",
-    percentage: "75%",
-    answer: "Yes",
-    amount: "150.45",
-  },
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Liverpool win the 2024 Premier League",
-    status: "Lost",
-    percentage: "44%",
-    answer: "No",
-    amount: "150.45",
-  },
-  {
-    imageUrl: "https://placehold.co/32x32",
-    question: "Will Bitcoin hit 100K by April?",
-    status: "Ongoing",
-    percentage: "89%",
-    answer: "Yes",
-    amount: "150.45",
-  },
-] as const;
-
-const funds = [
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will Bitcoin hit 100K by April?",
-    status: "Pending",
-    betAmount: 5,
-    percentage: 20,
-    value: "$150.45",
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Who will win the 2025 election?",
-    status: "Active",
-    betAmount: 2,
-    percentage: 50,
-    value: "$150.45",
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Liverpool win the 2024 Premier League",
-    status: "Expired",
-    betAmount: 13,
-    percentage: 86,
-    value: "$150.45",
-  },
-] as const;
-
-const proposals = [
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will Bitcoin hit 100K by April?",
-    status: "Pending",
-    timeLeft: "3d 2h",
-    betAmount: 8.9,
-    totalAmount: 20,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Who will win the 2025 election?",
-    status: "Active",
-    timeLeft: "4h 55m",
-    betAmount: 12.5,
-    totalAmount: 25,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will ETH surpass $5K by June?",
-    status: "Expired",
-    timeLeft: "-",
-    betAmount: 15,
-    totalAmount: 30,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will Solana flip Ethereum in market cap?",
-    status: "Pending",
-    timeLeft: "10d 8h",
-    betAmount: 5,
-    totalAmount: 15,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will the S&P 500 reach a new ATH in 2025?",
-    status: "Active",
-    timeLeft: "2d 5h",
-    betAmount: 7.2,
-    totalAmount: 18,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will AI stocks outperform the market in 2025?",
-    status: "Expired",
-    timeLeft: "-",
-    betAmount: 6.3,
-    totalAmount: 12,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will the Fed cut interest rates this year?",
-    status: "Pending",
-    timeLeft: "6d 4h",
-    betAmount: 10,
-    totalAmount: 22,
-  },
-  {
-    image: "https://placehold.co/32x32",
-    title: "Will Tesla stock reach $1000 in 2025?",
-    status: "Active",
-    timeLeft: "7h 30m",
-    betAmount: 9,
-    totalAmount: 21,
-  },
-] as const;
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
@@ -213,7 +68,7 @@ export default function Home() {
                   Total Portfolio Value
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  $215,340
+                  {profileData?parseFloat(Number(profileData.earnedFeeLiquidity / 1000000000 + profileData.totalLiquidityProvided).toFixed(9)).toString(): 0}
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">
@@ -237,7 +92,7 @@ export default function Home() {
                   Total Liquidity Provided
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? profileData.totalLiquidityProvided : 0} SOL
+                  {profileData? parseFloat(Number(profileData.totalLiquidityProvided).toFixed(9)).toString() : 0} SOL
                 </div>
               </div>
             </div>
@@ -247,7 +102,7 @@ export default function Home() {
                   Fees Earned From Liquidity
                 </div>
                 <div className="self-stretch justify-start text-white text-xl font-medium font-satoshi leading-relaxed">
-                  {profileData? Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9) : 0} SOL
+                  {profileData? parseFloat(Number(profileData.earnedFeeLiquidity / 1000000000).toFixed(9)).toString() : 0} SOL
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-1">

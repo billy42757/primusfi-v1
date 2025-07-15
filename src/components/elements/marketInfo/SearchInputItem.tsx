@@ -1,21 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 interface SearchInputProps {
   title?: string;
   minPlaceholder?: string;
   maxPlaceholder?: string;
+  minValue: number | "";
+  maxValue: number | "";
+  onMinChange: (value: number | "") => void;
+  onMaxChange: (value: number | "") => void;
 }
 
 const SearchInputItem: React.FC<SearchInputProps> = ({
   title = "Volume",
   minPlaceholder = "Min",
   maxPlaceholder = "Max",
+  minValue,
+  maxValue,
+  onMinChange,
+  onMaxChange,
 }) => {
-  const [minVolume, setMinVolume] = useState<number | "">("");
-  const [maxVolume, setMaxVolume] = useState<number | "">("");
-
   return (
     <div className="flex flex-col justify-start items-start gap-2">
       <div className="self-stretch justify-start text-[#838587] text-xs font-normal font-satoshi leading-3">
@@ -26,8 +31,8 @@ const SearchInputItem: React.FC<SearchInputProps> = ({
           <input
             type="number"
             placeholder={minPlaceholder}
-            value={minVolume}
-            onChange={(e) => setMinVolume(e.target.value ? Number(e.target.value) : "")}
+            value={minValue}
+            onChange={(e) => onMinChange(e.target.value ? Number(e.target.value) : "")}
             className="flex-1 bg-transparent text-[#838587] text-xs font-normal font-satoshi leading-3 outline-none"
           />
         </div>
@@ -35,8 +40,8 @@ const SearchInputItem: React.FC<SearchInputProps> = ({
           <input
             type="number"
             placeholder={maxPlaceholder}
-            value={maxVolume}
-            onChange={(e) => setMaxVolume(e.target.value ? Number(e.target.value) : "")}
+            value={maxValue}
+            onChange={(e) => onMaxChange(e.target.value ? Number(e.target.value) : "")}
             className="flex-1 bg-transparent text-[#838587] text-xs font-normal font-satoshi leading-3 outline-none"
           />
         </div>

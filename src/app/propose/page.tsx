@@ -5,7 +5,7 @@ import { FiUpload } from "react-icons/fi";
 import { ProposeType } from "@/types/type";
 import axios from "axios";
 import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
-import { marketField } from "@/data/data";
+import { marketField, url } from "@/data/data";
 import { elipsKey, findJsonPathsForKey, isPublickey, uploadToPinata } from "@/utils";
 import { createMarket } from "@/components/prediction_market_sdk";
 import { customizeFeed } from "@/components/oracle_service/simulateFeed";
@@ -327,7 +327,7 @@ export default function Propose() {
         data.question = data.range? `Will ${elipsKey(data.feedName)} reach a market cap of $ ${data.value} by ${data.date}?` : `Will ${elipsKey(data.feedName)} reach a per token price of $ ${data.value} by ${data.date}?`
       }
 
-      const res = await axios.post("http://localhost:8080/api/market/create", { data, isChecked });
+      const res = await axios.post(`${url}api/market/create`, { data, isChecked });
       const market_id = res.data.result;
 
       const cluster = process.env.CLUSTER === "Mainnet" ? "Mainnet" : "Devnet";
@@ -345,7 +345,7 @@ export default function Propose() {
 
       console.log("create result:", create_result);
 
-      const update_res = await axios.post("http://localhost:8080/api/market/add", { data: { ...create_result, id: market_id } });
+      const update_res = await axios.post(`${url}api/market/add`, { data: { ...create_result, id: market_id } });
 
       if (update_res.status === 200) {
         infoAlert("Market created successfully!");
