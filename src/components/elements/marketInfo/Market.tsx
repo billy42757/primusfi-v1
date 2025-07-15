@@ -1,7 +1,7 @@
 import { useGlobalContext } from "@/providers/GlobalContext";
 import { PendingData, Prediction } from "@/types/type";
 import { useEffect, useState } from "react";
-import { categories } from "@/data/data";
+import { categories, url } from "@/data/data";
 import Pagination from "../pagination/Pagination";
 import PredictionCard from "./PredictionCard";
 import PendingCard from "./PendingCard";
@@ -34,9 +34,9 @@ const Market: React.FC<MarketProps> = ({ showRecentActivity = true, onToggleRece
         }
       };
       if (pathname === "/fund") {
-        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=PENDING&marketField=${selectedCategory === "Sports" ? 1 : 0}`);
+        marketData = await axios.get(`${url}api/market/get?page=${currentPage}&limit=10&marketStatus=PENDING&marketField=${selectedCategory === "Sports" ? 1 : 0}`);
       } else if (pathname === "/") {
-        marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=${selectedCategory === "Sports" ? 1 : 0}`);
+        marketData = await axios.get(`${url}api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=${selectedCategory === "Sports" ? 1 : 0}`);
       }
 
       setTotal(marketData.data.total);

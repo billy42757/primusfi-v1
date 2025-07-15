@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { MarketDataType } from "@/types/type";
 import { motion } from "framer-motion";
+import { url } from "@/data/data";
 
 // Define types for the props
 interface PredictionCardProps {
@@ -54,7 +55,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
         token: token,
       });
 
-      const res = await axios.post("http://localhost:8080/api/market/betting", {
+      const res = await axios.post(`${url}api/market/betting`, {
         player: wallet.publicKey.toBase58(),
         market_id: markets[index]._id,
         amount: 1000,
@@ -65,7 +66,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
 
       if (res.status === 200) {
         infoAlert("Successfully betted!");
-        const marketData = await axios.get(`http://localhost:8080/api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=0`);
+        const marketData = await axios.get(`${url}api/market/get?page=${currentPage}&limit=10&marketStatus=ACTIVE&marketField=0`);
         formatMarketData(marketData.data.data);
       }
     } catch (error) {

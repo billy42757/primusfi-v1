@@ -7,7 +7,7 @@ import { GoArrowDownRight, GoQuestion } from "react-icons/go";
 import { ImAlarm } from "react-icons/im";
 import { useParams } from "next/navigation";
 import { useGlobalContext } from "@/providers/GlobalContext";
-import { marketField } from "@/data/data";
+import { marketField, url } from "@/data/data";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -55,7 +55,7 @@ export default function FundDetail() {
 
       console.log("status:", active);
 
-      const result = await axios.post("http://localhost:8080/api/market/liquidity", { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
+      const result = await axios.post(`${url}api/market/liquidity`, { market_id: market._id, amount: fundAmount, investor: wallet.publicKey?.toBase58(), active });
 
       if (result.status === 200) {
         infoAlert("Funed successfully!");
