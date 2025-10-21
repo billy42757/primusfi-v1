@@ -27,18 +27,18 @@ const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }:
         className={`md:flex hidden flex-none items-center h-20 gap-2 px-6 py-[30px] shrink-0 self-stretch transition-all duration-300 ${isCollapsed ? "justify-center" : "justify-start"
           }`}
       >
-        <div className="flex items-center gap-2 cursor-pointer">
+        <div className="flex items-center gap-4 cursor-pointer">
           <Link href="/">
             <Icon name="Logo" size={48} />
           </Link>
-          {!isCollapsed && (
+          {/* {!isCollapsed && (
             <Link
               href="/"
               className="text-4xl leading-9 font-normal font-['anton'] text-white uppercase"
             >
-              speculape
+              PrimusFi
             </Link>
-          )}
+          )} */}
         </div>
       </div>
 

@@ -1,37 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { MarketStatus } from "@/types/type";
+import { MarketStatus, MarketDataType } from "@/types/type";
+import SAMPLE_MARKETS from "@/data/sampleMarkets";
 // Define ActiveTab type
-type MarketDataType = {
-  "_id": string,
-  "marketField": number,
-  "apiType": number,
-  "task": string,
-  "creator": string,
-  "tokenA": string,
-  "tokenB": string,
-  "market": string,
-  "question": string,
-  "feedName": string,
-  "value": number,
-  "tradingAmountA": number,
-  "tradingAmountB": number,
-  "tokenAPrice": number,
-  "tokenBPrice": number,
-  "initAmount": number,
-  "range": number,
-  "date": string,
-  "marketStatus": string,
-  "imageUrl": string,
-  "createdAt": string,
-  "__v": number,
-  "playerACount": number,
-  "playerBCount": number,
-  "totalInvestment": number,
-  "description": string,
-  "comments": number
-}
 
 // Define Global Context Type
 interface GlobalContextType {
@@ -47,7 +19,8 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 // Create Global Provider
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [activeTab, setActiveTab] = useState<MarketStatus>("ACTIVE");
-  const [markets, setMarkets] = useState<MarketDataType[]>([]);
+  // Initialize with sample markets for local development/testing
+  const [markets, setMarkets] = useState<MarketDataType[]>(SAMPLE_MARKETS);
 
   const formatMarketData = (data: MarketDataType[]) => {
     setMarkets(data);
