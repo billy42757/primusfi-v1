@@ -32,14 +32,14 @@ const HeaderTop: React.FC<HeaderTopProps> = ({ isCollapsed }) => {
           </div>
           <div className="flex-1 md:hidden flex justify-start items-center gap-2">
             <Link href="/">
-              <Icon name="Logo" size={24} />
+              <Icon name="LogoMobile" size={24} />
             </Link>
-            <Link
+            {/* <Link
               href="/"
               className="text-xl leading-9 font-normal font-['anton'] text-white uppercase"
             >
               speculape
-            </Link>
+            </Link> */}
           </div>
         </div>
 

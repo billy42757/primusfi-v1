@@ -3,7 +3,7 @@
 import Icon from "@/components/elements/Icons";
 import Link from "next/link";
 import SidebarNav from "../partials/SidebarNav";
-import { FaInstagram, FaXTwitter } from "react-icons/fa6";
+import { FaTelegram, FaXTwitter } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { RxCross2 } from "react-icons/rx";
@@ -15,21 +15,33 @@ interface HeaderSideBarProps {
   setIsCanceled?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }: HeaderSideBarProps) => {
+const HeaderSideBar = ({
+  isCollapsed,
+  setIsCollapsed,
+  isCancel,
+  setIsCanceled,
+}: HeaderSideBarProps) => {
   const { width } = useWindowSize();
 
   return (
     <div
-      className={`hidden md:flex fixed top-0 left-0 h-screen z-30 ${isCollapsed ? "w-[104px]" : "w-[280px]"} bg-[#1E1E1E] flex-col transition-all duration-300`}
+      className={`hidden md:flex fixed top-0 left-0 h-screen z-30 ${
+        isCollapsed ? "w-[104px]" : "w-[280px]"
+      } bg-[#1E1E1E] flex-col transition-all duration-300`}
     >
       {/* Logo */}
       <div
-        className={`md:flex hidden flex-none items-center h-20 gap-2 px-6 py-[30px] shrink-0 self-stretch transition-all duration-300 ${isCollapsed ? "justify-center" : "justify-start"
-          }`}
+        className={`md:flex hidden flex-none items-center h-20 gap-2 px-6 py-[30px] shrink-0 self-stretch transition-all duration-300 ${
+          isCollapsed ? "justify-center" : "justify-start"
+        }`}
       >
         <div className="flex items-center gap-4 cursor-pointer">
           <Link href="/">
-            <Icon name="Logo" size={48} />
+            {!isCollapsed ? (
+              <Icon name="Logo" size={48} />
+            ) : (
+              <Icon name="LogoMobile" size={48} />
+            )}
           </Link>
           {/* {!isCollapsed && (
             <Link
@@ -53,12 +65,12 @@ const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }:
           <Link href="/">
             <Icon name="Logo" size={24} />
           </Link>
-          <Link
+          {/* <Link
             href="/"
             className="text-xl leading-9 font-normal font-['anton'] text-white uppercase"
           >
             speculape
-          </Link>
+          </Link> */}
         </div>
         <div className="px-3 py-1.5 bg-[#282828] rounded-xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] flex justify-start items-center gap-1">
           <div className="justify-start text-white text-sm font-medium font-satoshi leading-normal">
@@ -77,10 +89,11 @@ const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }:
       {/* Social Links */}
 
       <div
-        className={` self-stretch p-6  flex-col ${isCollapsed
-          ? "flex justify-center items-center"
-          : " justify-start items-start inline-flex"
-          } flex-none gap-6  bottom-0`}
+        className={` self-stretch p-6  flex-col ${
+          isCollapsed
+            ? "flex justify-center items-center"
+            : " justify-start items-start inline-flex"
+        } flex-none gap-6  bottom-0`}
       >
         {!isCollapsed && (
           <div className="self-stretch justify-start px-3">
@@ -95,27 +108,28 @@ const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }:
           </div>
         )}
         <div
-          className={`flex flex-col ${isCollapsed
-            ? "md:justify-center md:items-center"
-            : "justify-start items-start"
-            } gap-2`}
+          className={`flex flex-col ${
+            isCollapsed
+              ? "md:justify-center md:items-center"
+              : "justify-start items-start"
+          } gap-2`}
         >
           <Link
-            href="#"
+            href="https://t.me/+9E0GXxnCbdRhZjJk"
             className="p-3 bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] inline-flex justify-start items-center gap-2"
           >
-            <FaInstagram className="text-white" />
+            <FaTelegram className="text-white" />
             {!isCollapsed && (
               <div className="justify-start text-white text-base font-medium font-satoshi leading-normal">
-                Instagram
+                Telegram
               </div>
             )}
             <div className="md:hidden justify-start text-white text-base font-medium font-satoshi leading-normal">
-              Instagram
+              Telegram
             </div>
           </Link>
           <Link
-            href="#"
+            href="https://x.com/primus_market"
             className="p-3 bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] inline-flex justify-start items-center gap-2"
           >
             <FaXTwitter className="text-white" />
@@ -135,8 +149,9 @@ const HeaderSideBar = ({ isCollapsed, setIsCollapsed, isCancel, setIsCanceled }:
         data-size="Small"
         data-type="Tertiary"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`w-8 p-2  ${isCollapsed ? "left-[120px] top-[56px]" : "left-[296px] top-[56px]"
-          } absolute origin-top-left hover:bg-[#3a3a3a] rotate-180 cursor-pointer bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] md:inline-flex hidden justify-start items-center gap-2`}
+        className={`w-8 p-2  ${
+          isCollapsed ? "left-[120px] top-[56px]" : "left-[296px] top-[56px]"
+        } absolute origin-top-left hover:bg-[#3a3a3a] rotate-180 cursor-pointer bg-[#282828] rounded-2xl shadow-[inset_0px_2px_0px_0px_rgba(53,53,53,1.00)] md:inline-flex hidden justify-start items-center gap-2`}
       >
         <div className="inline-flex flex-col justify-start items-start overflow-hidden">
           <div className="rounded-[3px]" />
